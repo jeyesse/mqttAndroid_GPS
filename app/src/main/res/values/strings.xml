@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ThingPlug oneM2M SDK example</string>
+    <string name="title_activity_maps2">Map</string>
+    <string name="title_activity_maps">Map</string>
+</resources>
