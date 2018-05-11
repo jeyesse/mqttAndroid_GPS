@@ -1,4 +1,4 @@
-#Tue May 08 13:10:51 KST 2018
+#Fri May 11 10:46:50 KST 2018
 base.0=C\:\\Users\\user\\AndroidStudioProjects\\thingplug-sdk-android-master\\thingplug-sdk-android-master\\SDK\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\8
 path.0=classes.dex
 renamed.0=classes.dex
