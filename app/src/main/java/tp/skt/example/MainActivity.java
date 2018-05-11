@@ -15,7 +15,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import java.util.Arrays;
 import java.util.Random;
 
-import google.map.mapsActivity;
+import google.map.MapsActivity;
 import tp.skt.onem2m.api.IMQTT;
 import tp.skt.onem2m.api.MQTTProcessor;
 import tp.skt.onem2m.api.oneM2MAPI;
@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (viewId) {
             case R.id.location:
-                Intent intent = new Intent(this, mapsActivity.class);
+                Intent intent = new Intent(this, MapsActivity.class);
                 startActivity(intent);
                 break;
             case R.id.register:
@@ -420,6 +420,7 @@ public class MainActivity extends AppCompatActivity {
                         showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
                     }
                 });
+
     }
 
     private void report() {
@@ -427,9 +428,9 @@ public class MainActivity extends AppCompatActivity {
 
         oneM2MAPI api = oneM2MAPI.getInstance();
 
-        api.tpAddData("111");
-        api.tpAddData("222");
-        api.tpAddData("333");
+        api.tpAddData(String.valueOf(MapsActivity.latitude));
+        //api.tpAddData("222");
+        //api.tpAddData("333");
 
         api.tpReport(mqttService, Configuration.CONTAINER_NAME,
                 device.dKey, "text", null, true, new MQTTCallback<contentInstanceResponse>() {
