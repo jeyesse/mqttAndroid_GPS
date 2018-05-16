@@ -4,7 +4,7 @@
             "outputFile": "C:\\Users\\user\\AndroidStudioProjects\\thingplug-sdk-android-master\\thingplug-sdk-android-master\\SDK\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-h720dp-v13\\values-h720dp-v13.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\user\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-24.2.1.aar\\ce2e5405960cd01e5a571a1ef536326d\\res\\values-h720dp-v13\\values-h720dp-v13.xml",
+                    "source": "C:\\Users\\user\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-26.1.0.aar\\5603742d25b32bad866e26c76f066bcc\\res\\values-h720dp-v13\\values-h720dp-v13.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
