@@ -122,6 +122,9 @@ public class MainActivity extends AppCompatActivity {
         int viewId = view.getId();
 
         switch (viewId) {
+            case R.id.subscribe:
+                subscribeDevice();
+                break;
             case R.id.location:
                 Intent intent = new Intent(this, MapsActivity.class);
                 startActivity(intent);
@@ -223,7 +226,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     public void onStart() {
         super.onStart();
@@ -282,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setStatus(String text) {
-        TextView display = (TextView) findViewById(R.id.status);
+        TextView display = findViewById(R.id.status);
         display.setText(text);
     }
 
@@ -405,8 +407,24 @@ public class MainActivity extends AppCompatActivity {
      */
     private void registerSensor() {
         if (device == null) return;
-        oneM2MAPI.getInstance().tpRegisterContainer(mqttService, Configuration.CONTAINER_NAME,
+        oneM2MAPI.getInstance().tpRegisterContainer(mqttService, Configuration.CONTAINER_NAME_LATITUDE,
                 device.dKey, new MQTTCallback<containerResponse>() {
+                    @Override
+                    public void onResponse(containerResponse response) {
+                        MainActivity.this.sensor = response;
+                        showResponseMessage("container CREATE", response);
+                        registerControl();
+                    }
+
+                    @Override
+                    public void onFailure(int errorCode, String message) {
+                        Log.e(TAG, errorCode + " : " + message);
+                        showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
+                    }
+                });
+        oneM2MAPI.getInstance().tpRegisterContainer(mqttService, Configuration.CONTAINER_NAME_LONGITUDE,
+                device.dKey, new MQTTCallback<containerResponse>() {
+
                     @Override
                     public void onResponse(containerResponse response) {
                         MainActivity.this.sensor = response;
@@ -423,16 +441,25 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /*
+    * subscribe device
+    */
+
+    private void subscribeDevice() {
+        if (mqttService == null) return;
+
+    }
+
+    /*
+     * report
+     */
     private void report() {
         if (device == null && sensor != null) return;
 
         oneM2MAPI api = oneM2MAPI.getInstance();
 
         api.tpAddData(String.valueOf(MapsActivity.latitude));
-        //api.tpAddData("222");
-        //api.tpAddData("333");
-
-        api.tpReport(mqttService, Configuration.CONTAINER_NAME,
+        api.tpReport(mqttService, Configuration.CONTAINER_NAME_LATITUDE,
                 device.dKey, "text", null, true, new MQTTCallback<contentInstanceResponse>() {
                     @Override
                     public void onResponse(contentInstanceResponse response) {
@@ -444,6 +471,21 @@ public class MainActivity extends AppCompatActivity {
                     public void onFailure(int errorCode, String message) {
                         Log.e(TAG, errorCode + " : " + message);
                         showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
+                    }
+                });
+
+        api.tpAddData(String.valueOf(MapsActivity.longitude));
+        api.tpReport(mqttService, Configuration.CONTAINER_NAME_LONGITUDE,
+                device.dKey, "text", null, true, new MQTTCallback<contentInstanceResponse>() {
+
+                    @Override
+                    public void onResponse(contentInstanceResponse response) {
+
+                    }
+
+                    @Override
+                    public void onFailure(int errorCode, String message) {
+
                     }
                 });
     }
@@ -696,7 +738,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             container containerCreate = new container.Builder(Operation.Create).
-                    nm(Configuration.CONTAINER_NAME).
+                    nm(Configuration.CONTAINER_NAME_LATITUDE).
                     dKey(device.dKey).
                     lbl("con").build();
 
@@ -716,6 +758,29 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        try {
+            container containerCreate = new container.Builder(Operation.Create).
+                    nm(Configuration.CONTAINER_NAME_LONGITUDE).
+                    dKey(device.dKey).
+                    lbl("con").build();
+
+            mqttService.publish(containerCreate, new MQTTCallback<containerResponse>() {
+                @Override
+                public void onResponse(containerResponse response) {
+                    sensor = response;
+                    containerRetrieve();
+//                    areaNwkInfoCreate();
+                }
+
+                @Override
+                public void onFailure(int errorCode, String message) {
+                    Log.e(TAG, errorCode + " : " + message);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -726,7 +791,27 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             container containerRetrieve = new container.Builder(Operation.Retrieve).
-                    nm(Configuration.CONTAINER_NAME).
+                    nm(Configuration.CONTAINER_NAME_LATITUDE).
+                    uKey(Configuration.UKEY).build();
+
+            mqttService.publish(containerRetrieve, new MQTTCallback<containerResponse>() {
+                @Override
+                public void onResponse(containerResponse response) {
+                    //
+                    mgmtCmdCreate();
+                }
+
+                @Override
+                public void onFailure(int errorCode, String message) {
+                    Log.e(TAG, message);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            container containerRetrieve = new container.Builder(Operation.Retrieve).
+                    nm(Configuration.CONTAINER_NAME_LONGITUDE).
                     uKey(Configuration.UKEY).build();
 
             mqttService.publish(containerRetrieve, new MQTTCallback<containerResponse>() {
@@ -815,7 +900,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             contentInstance contentInstanceCreate = new contentInstance.Builder(Operation.Create).
-                    containerName(Configuration.CONTAINER_NAME).
+                    containerName(Configuration.CONTAINER_NAME_LATITUDE).
                     dKey(device.dKey).
                     cnf("text").
                     con("45").build();
@@ -844,6 +929,29 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        try {
+            contentInstance contentInstanceCreate = new contentInstance.Builder(Operation.Create).
+                    containerName(Configuration.CONTAINER_NAME_LONGITUDE).
+                    dKey(device.dKey).
+                    cnf("text").
+                    con("45").build();
+
+            mqttService.publish(contentInstanceCreate, new MQTTCallback<contentInstanceResponse>() {
+                @Override
+                public void onResponse(contentInstanceResponse response) {
+                    sensorInfo = response;
+//                    contentInstanceRD(Operation.Retrieve, "oldest");
+                    contentInstanceRD(Operation.Retrieve, "contentInstance-" + response.getRi());
+                }
+
+                @Override
+                public void onFailure(int errorCode, String message) {
+                    Log.e(TAG, errorCode + " : " + message);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -854,7 +962,29 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             contentInstance contentInstanceRetrieve = new contentInstance.Builder(op).
-                    containerName(Configuration.CONTAINER_NAME).
+                    containerName(Configuration.CONTAINER_NAME_LATITUDE).
+                    uKey(Configuration.UKEY).
+                    dKey(device.dKey).
+                    nm(suffix).build();
+
+            mqttService.publish(contentInstanceRetrieve, new MQTTCallback<contentInstanceResponse>() {
+                @Override
+                public void onResponse(contentInstanceResponse response) {
+                    //
+                }
+
+                @Override
+                public void onFailure(int errorCode, String message) {
+                    Log.e(TAG, errorCode + " : " + message);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            contentInstance contentInstanceRetrieve = new contentInstance.Builder(op).
+                    containerName(Configuration.CONTAINER_NAME_LONGITUDE).
                     uKey(Configuration.UKEY).
                     dKey(device.dKey).
                     nm(suffix).build();
@@ -1192,7 +1322,28 @@ public class MainActivity extends AppCompatActivity {
             try {
                 contentInstance contentInstanceDelete = new contentInstance.Builder(Operation.Delete).
                         nm(sensorInfo.getRn()).
-                        containerName(Configuration.CONTAINER_NAME).
+                        containerName(Configuration.CONTAINER_NAME_LATITUDE).
+                        dKey(device.dKey).build();
+
+                mqttService.publish(contentInstanceDelete, new MQTTCallback<contentInstanceResponse>() {
+                    @Override
+                    public void onResponse(contentInstanceResponse response) {
+                        showResponseMessage("contentInstance DELETE", response);
+                    }
+
+                    @Override
+                    public void onFailure(int errorCode, String message) {
+                        Log.e(TAG, errorCode + " : " + message);
+                        showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            try {
+                contentInstance contentInstanceDelete = new contentInstance.Builder(Operation.Delete).
+                        nm(sensorInfo.getRn()).
+                        containerName(Configuration.CONTAINER_NAME_LONGITUDE).
                         dKey(device.dKey).build();
 
                 mqttService.publish(contentInstanceDelete, new MQTTCallback<contentInstanceResponse>() {

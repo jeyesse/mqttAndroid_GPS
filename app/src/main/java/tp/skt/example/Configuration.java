@@ -14,8 +14,10 @@ public class Configuration {
     public static final String ONEM2M_TO = "/ThingPlug/v1_0";
     public static final String ONEM2M_NODEID = "sjs1210_android";
     public static final String ONEM2M_PASSCODE = "123456";
+    public static final String ONEM2M_TARGET_DEVICE = "sjs1210_android";
 
-    public static final String CONTAINER_NAME = "latitude";
+    public static final String CONTAINER_NAME_LATITUDE = "latitude";
+    public static final String CONTAINER_NAME_LONGITUDE ="longitude";
     public static final String MGMTCMD_NAME = ONEM2M_NODEID + "_DevReset";
     public static final String AREANWKINFO_NAME = ONEM2M_NODEID + "_areaNwkInfo_01";
     public static final String LOCATIONPOLICY_NAME = ONEM2M_NODEID + "_locationPolicy_01";

@@ -21,7 +21,7 @@
 
     <Button
         android:id="@+id/register"
-        android:layout_width="match_parent"
+        android:layout_width="175dp"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/connect"
@@ -70,11 +70,22 @@
 
     <Button
         android:id="@+id/location"
-        android:layout_width="175dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:layout_toEndOf="@+id/connect"
         android:onClick="onClick"
         android:text="location" />
+
+    <Button
+        android:id="@+id/subscribe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/register"
+        android:layout_toEndOf="@+id/register"
+        android:onClick="onClick"
+        android:text="subscribe device" />
 
 </RelativeLayout>
