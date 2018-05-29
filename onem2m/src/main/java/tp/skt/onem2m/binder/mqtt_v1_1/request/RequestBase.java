@@ -140,6 +140,9 @@ public class RequestBase extends oneM2MResource {
         @Expose
         @Element(required = false)
         protected Exin exin;
+        @Expose
+        @Element(required = false)
+        protected Sub sub;
 
         protected static class Exin {
             @Expose
@@ -153,7 +156,6 @@ public class RequestBase extends oneM2MResource {
                 this.exs = exs;
                 this.exr = exr;
             }
-
         }
 
         protected static class Cin {
@@ -298,7 +300,6 @@ public class RequestBase extends oneM2MResource {
                 this.hwv = hwv;
             }
         }
-
 
         protected static class Swr {
             @Expose
@@ -455,7 +456,28 @@ public class RequestBase extends oneM2MResource {
                 this.lbl = lbl;
             }
         }
+
+        protected static class Sub {
+            @Expose
+            @Element(required = false)
+            //private final String enc;
+            protected final String enc;
+            @Expose
+            @Element(required = false)
+            private final String nu;
+            @Expose
+            @Element(required = false)
+            private final String nct;
+
+
+            protected Sub(String enc, String nu, String nct) {
+                this.enc = enc;
+                this.nu = nu;
+                this.nct = nct;
+            }
+        }
     }
+
 
     protected static abstract class Builder {
         protected final int resourceType;

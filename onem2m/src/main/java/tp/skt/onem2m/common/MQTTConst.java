@@ -14,4 +14,5 @@ public class MQTTConst {
 
     public static final String CONTAINER_NAME = "CONTAINER_NAME";
     public static final String MGMTCMD_NAME = "MGMTCMD_NAME";
+    public static final String TARGET_ID = "TARGET_ID";
 }

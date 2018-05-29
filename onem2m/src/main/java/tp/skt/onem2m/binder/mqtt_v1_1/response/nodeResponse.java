@@ -1,6 +1,8 @@
 package tp.skt.onem2m.binder.mqtt_v1_1.response;
 
 
+import android.util.Log;
+
 import com.google.gson.annotations.Expose;
 
 import org.simpleframework.xml.Element;
@@ -37,6 +39,15 @@ public class nodeResponse extends ResponseBase {
      * @return ri
      */
     public String getRi() {
+//        try {
+//            Log.i("test", "pc = " + pc);
+//            Log.i("test", "pc.nod = " + pc.nod);
+//            return pc.nod.ri;
+//        }catch (Exception e) {
+//            e.printStackTrace();
+//            return null;
+//
+//        }
         return pc.nod.ri;
     }
 

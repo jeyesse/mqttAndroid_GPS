@@ -59,7 +59,7 @@ public class Definitions {
         int serviceSubscribedNode = 19;
         int statsCollect = 20;
         int statsConfig = 21;
-        int subscription = 22;
+        int subscription = 23;
         int accessControlPolicyAnnc = 10001;
         int AEAnnc = 10002;
         int containerAnnc = 10003;

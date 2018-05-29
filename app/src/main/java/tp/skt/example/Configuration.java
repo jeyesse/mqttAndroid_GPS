@@ -10,11 +10,11 @@ public class Configuration {
     public static final String MQTT_HOST = "tcp://mqtt.sktiot.com";
     public static final String MQTT_SECURE_HOST = "ssl://mqtt.sktiot.com";
 
-    public static final String CSEBASE = "ThingPlug";
-    public static final String ONEM2M_TO = "/ThingPlug/v1_0";
+    public static final String CSEBASE = "thingplug";
+    public static final String ONEM2M_TO = "/thingplug/v1_0";
     public static final String ONEM2M_NODEID = "sjs1210_android";
     public static final String ONEM2M_PASSCODE = "123456";
-    public static final String ONEM2M_TARGET_DEVICE = "sjs1210_android";
+    public static final String ONEM2M_TARGET_DEVICE = "sjs1210_IoT_EM";
 
     public static final String CONTAINER_NAME_LATITUDE = "latitude";
     public static final String CONTAINER_NAME_LONGITUDE ="longitude";

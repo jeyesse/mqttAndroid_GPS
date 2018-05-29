@@ -7,12 +7,14 @@ import tp.skt.onem2m.binder.mqtt_v1_1.request.execInstance;
 import tp.skt.onem2m.binder.mqtt_v1_1.request.mgmtCmd;
 import tp.skt.onem2m.binder.mqtt_v1_1.request.node;
 import tp.skt.onem2m.binder.mqtt_v1_1.request.remoteCSE;
+import tp.skt.onem2m.binder.mqtt_v1_1.request.subscription;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.containerResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.contentInstanceResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.execInstanceResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.mgmtCmdResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.nodeResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.remoteCSEResponse;
+import tp.skt.onem2m.binder.mqtt_v1_1.response.subscriptionResponse;
 import tp.skt.onem2m.common.MQTTConst;
 import tp.skt.onem2m.net.mqtt.MQTTCallback;
 import tp.skt.onem2m.net.mqtt.MQTTUtils;
@@ -169,6 +171,44 @@ public class oneM2MAPI {
     }
 
     /**
+     * 구독신청을 한다.
+     *
+     * @param mqttService    MQTT service
+     * @param deviceID      deviceID
+     * @param targetDeviceID targetDeviceID
+     * @param containerName  containerName
+     * @param userKey        userKey
+     * @param callback       response callback
+     */
+    public void tpSubscription(final IMQTT mqttService, final String deviceID, final String targetDeviceID, final String containerName, final String userKey,
+                               final MQTTCallback callback) {
+        try {
+            MQTTUtils.checkNull(mqttService, "IMQTT is null!");
+            MQTTUtils.checkNull(callback, "MQTTCallback is null!");
+
+            subscription subscription = new subscription.Builder(Definitions.Operation.Create).targetID(targetDeviceID).
+                    containerName(containerName).nm(targetDeviceID + "_" +containerName).uKey(userKey).enc("").
+                    nu("MQTT|"+ deviceID).nct("2").build();
+
+            mqttService.publish(subscription, new MQTTCallback<subscriptionResponse>() {
+                @Override
+                public void onResponse(subscriptionResponse response) {
+                    callback.onResponse(response);
+                }
+
+                @Override
+                public void onFailure(int errorCode, String message) {
+                    callback.onFailure(errorCode, message);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            callback.onFailure(Definitions.ResponseStatusCode.INTERNAL_SDK_ERROR, e.getMessage());
+        }
+    }
+
+
+    /**
      * 제어를 등록한다.
      * (mgmtCmd 를 등록한다.)
      *
@@ -310,4 +350,5 @@ public class oneM2MAPI {
             callback.onFailure(Definitions.ResponseStatusCode.INTERNAL_SDK_ERROR, e.getMessage());
         }
     }
+
 }

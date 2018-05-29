@@ -44,6 +44,7 @@ import tp.skt.onem2m.binder.mqtt_v1_1.response.locationPolicyResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.mgmtCmdResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.nodeResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.remoteCSEResponse;
+import tp.skt.onem2m.binder.mqtt_v1_1.response.subscriptionResponse;
 import tp.skt.onem2m.net.mqtt.MQTTCallback;
 import tp.skt.onem2m.net.mqtt.MQTTClient;
 import tp.skt.onem2m.net.mqtt.MQTTConfiguration;
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     private mgmtCmdResponse control;
     private locationPolicyResponse locationPolicyRes;
     private AEResponse AERes;
+    private subscriptionResponse subscriptionResponse;
 
     private final String TAG = "TP_SDK_SAMPLE_APP";
 
@@ -442,11 +444,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /*
-    * subscribe device
-    */
-
+     * subscribe device
+     */
     private void subscribeDevice() {
         if (mqttService == null) return;
+        oneM2MAPI.getInstance().tpSubscription(mqttService, Configuration.ONEM2M_NODEID, Configuration.ONEM2M_NODEID,
+                Configuration.CONTAINER_NAME_LONGITUDE, Configuration.UKEY, new MQTTCallback<subscriptionResponse>() {
+                    @Override
+                    public void onResponse(subscriptionResponse response) {
+                        MainActivity.this.subscriptionResponse = response;
+                        showResponseMessage("subscription CREATE", response);
+                    }
+
+                    @Override
+                    public void onFailure(int errorCode, String message) {
+                        Log.e(TAG, errorCode + " : " + message);
+                        showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
+                    }
+                });
 
     }
 
