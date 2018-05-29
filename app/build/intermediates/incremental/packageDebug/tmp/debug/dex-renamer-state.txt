@@ -1,13 +1,4 @@
-#Tue May 29 11:51:12 KST 2018
-path.3=classes.dex
-path.2=classes.dex
-path.1=classes.dex
+#Tue May 29 15:47:30 KST 2018
+base.0=C\:\\Users\\user\\AndroidStudioProjects\\thingplug-sdk-android-master\\thingplug-sdk-android-master\\mqttAndroid_GPS\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\0
 path.0=classes.dex
-renamed.3=classes4.dex
-renamed.2=classes3.dex
-renamed.1=classes2.dex
 renamed.0=classes.dex
-base.3=F\:\\workspace\\mqttAndroid_GPS\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\14
-base.2=F\:\\workspace\\mqttAndroid_GPS\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\11
-base.1=F\:\\workspace\\mqttAndroid_GPS\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\13
-base.0=F\:\\workspace\\mqttAndroid_GPS\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\12

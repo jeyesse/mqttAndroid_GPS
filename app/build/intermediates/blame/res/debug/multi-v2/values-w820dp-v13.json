@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "F:\\workspace\\mqttAndroid_GPS\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-w820dp-v13\\values-w820dp-v13.xml",
+            "outputFile": "C:\\Users\\user\\AndroidStudioProjects\\thingplug-sdk-android-master\\thingplug-sdk-android-master\\mqttAndroid_GPS\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-w820dp-v13\\values-w820dp-v13.xml",
             "map": [
                 {
-                    "source": "F:\\workspace\\mqttAndroid_GPS\\app\\src\\main\\res\\values-w820dp\\dimens.xml",
+                    "source": "C:\\Users\\user\\AndroidStudioProjects\\thingplug-sdk-android-master\\thingplug-sdk-android-master\\mqttAndroid_GPS\\app\\src\\main\\res\\values-w820dp\\dimens.xml",
                     "from": {
                         "startLines": "4",
                         "startColumns": "4",

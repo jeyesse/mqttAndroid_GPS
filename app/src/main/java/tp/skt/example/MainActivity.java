@@ -121,8 +121,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mClientID = Configuration.ACCOUNT_ID + "_" + getRandomNumber();
-
+        //mClientID = Configuration.ACCOUNT_ID + "_" + getRandomNumber();
+        mClientID = Configuration.ONEM2M_NODEID;
         MQTTClient.Builder builder = new MQTTClient.Builder(MainActivity.this)
                 .baseUrl(Configuration.MQTT_SECURE_HOST)
                 .clientId(mClientID)
@@ -597,18 +597,20 @@ public class MainActivity extends Activity {
      * subscribe device
      */
     private void subscribeDevice() {
+        Log.i(TAG,"subscribeDevice called, mqttService="+mqttService);
         if (mqttService == null) return;
         oneM2MAPI.getInstance().tpSubscription(mqttService, Configuration.ONEM2M_NODEID, Configuration.ONEM2M_NODEID,
                 Configuration.CONTAINER_NAME_LONGITUDE, UKEY, new MQTTCallback<subscriptionResponse>() {
                     @Override
                     public void onResponse(subscriptionResponse response) {
+                        Log.i(TAG,"subscribeDevice::onResponse = "+response);
                         MainActivity.this.subscriptionResponse = response;
                         showResponseMessage("subscription CREATE", response);
                     }
 
                     @Override
                     public void onFailure(int errorCode, String message) {
-                        Log.e(TAG, errorCode + " : " + message);
+                        Log.e(TAG, "subscribeDevice::onFailure"+errorCode + " : " + message);
                         showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
                     }
                 });
