@@ -51,7 +51,7 @@
 
     <Button
         android:id="@+id/disconnect"
-        android:layout_width="match_parent"
+        android:layout_width="175dp"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/deregister"
@@ -87,5 +87,15 @@
         android:layout_toEndOf="@+id/register"
         android:onClick="onClick"
         android:text="subscribe device" />
+
+    <Button
+        android:id="@+id/getDeviceList"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/disconnect"
+        android:layout_toEndOf="@+id/disconnect"
+        android:onClick="onClick"
+        android:text="GET DEVICE LIST" />
 
 </RelativeLayout>

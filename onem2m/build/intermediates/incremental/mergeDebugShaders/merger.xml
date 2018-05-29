@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="C:\Users\user\AndroidStudioProjects\thingplug-sdk-android-master\thingplug-sdk-android-master\mqttAndroid_GPS\onem2m\src\main\shaders"/></dataSet><dataSet config="debug"><source path="C:\Users\user\AndroidStudioProjects\thingplug-sdk-android-master\thingplug-sdk-android-master\mqttAndroid_GPS\onem2m\src\debug\shaders"/></dataSet></merger>
+<merger version="3"><dataSet config="main"><source path="F:\workspace\mqttAndroid_GPS\onem2m\src\main\shaders"/></dataSet><dataSet config="debug"><source path="F:\workspace\mqttAndroid_GPS\onem2m\src\debug\shaders"/></dataSet></merger>

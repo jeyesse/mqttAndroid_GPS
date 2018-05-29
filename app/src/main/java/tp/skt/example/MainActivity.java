@@ -1,9 +1,10 @@
 package tp.skt.example;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -11,9 +12,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.w3c.dom.Text;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 import google.map.MapsActivity;
 import tp.skt.onem2m.api.IMQTT;
@@ -49,13 +64,17 @@ import tp.skt.onem2m.net.mqtt.MQTTCallback;
 import tp.skt.onem2m.net.mqtt.MQTTClient;
 import tp.skt.onem2m.net.mqtt.MQTTConfiguration;
 
+import static tp.skt.example.Configuration.UKEY;
+import static tp.skt.example.Configuration.URL_SEARCH_DEFAULT;
+import static tp.skt.example.Configuration.URL_SEARCH_DEVICE;
+
 /**
  * MainActivity
  * <p>
  * Copyright (C) 2017. SK Telecom, All Rights Reserved.
  * Written 2017, by SK Telecom
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
     private MQTTClient MQTTClient;
 
     private IMQTT mqttService;
@@ -108,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
                 .baseUrl(Configuration.MQTT_SECURE_HOST)
                 .clientId(mClientID)
                 .userName(Configuration.ACCOUNT_ID)
-                .password(Configuration.UKEY)
+                .password(UKEY)
                 .setLog(true);
 
         MQTTClient = builder.build();
@@ -225,6 +244,137 @@ public class MainActivity extends AppCompatActivity {
                         }
                 );
                 break;
+
+            case R.id.getDeviceList:
+                try {
+                    final List<DeviceInfo> deviceList = new DeviceListTask().execute().get();
+
+                    // display device list
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            displayDeviceList(deviceList);
+                        }
+                    });
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                break;
+        }
+    }
+
+    private class DeviceListTask extends AsyncTask<Void, Void, List<DeviceInfo>> {
+
+        @Override
+        protected List<DeviceInfo> doInBackground(Void... voids) {
+            // search device list
+            ArrayList<DeviceInfo> deviceList = searchDevice(UKEY);
+            return deviceList;
+        }
+    }
+
+    private ArrayList<DeviceInfo> searchDevice(String ukey) {
+        ArrayList<DeviceInfo> diviceList = new ArrayList<DeviceInfo>();
+        try{
+            URL url = new URL(URL_SEARCH_DEFAULT + URL_SEARCH_DEVICE);
+            HttpURLConnection request = (HttpURLConnection)url.openConnection();
+            request.setRequestMethod("GET");
+            request.setRequestProperty("uKey", ukey);
+            request.setRequestProperty("locale", "ko");
+
+            int responseCode = request.getResponseCode();
+            Log.i(TAG, "[" + url.toString() + "]" + "responseCode : " + responseCode);
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                InputStream is = request.getInputStream();
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                byte[] byteBuffer = new byte[1024];
+                byte[] byteData = null;
+                int nLength = 0;
+                while ((nLength = is.read(byteBuffer, 0, byteBuffer.length)) != -1) {
+                    baos.write(byteBuffer, 0, nLength);
+                }
+                byteData = baos.toByteArray();
+                String response = new String(byteData);
+
+                try {
+                    XmlPullParserFactory xmlFactoryObject = XmlPullParserFactory.newInstance();
+                    XmlPullParser xmlParser = xmlFactoryObject.newPullParser();
+                    xmlParser.setInput(new StringReader(response));
+                    String tagName = null;
+                    String device_id = "";
+                    String device_name = "";
+                    while (xmlParser.getEventType() != XmlPullParser.END_DOCUMENT) {
+                        if (xmlParser.getEventType() == XmlPullParser.START_TAG) {
+                            if (xmlParser.getName().equalsIgnoreCase("device_Id") == true
+                                    || xmlParser.getName().equalsIgnoreCase("device_Name") == true) {
+                                tagName = xmlParser.getName();
+                            }
+                        }
+                        else if (xmlParser.getEventType() == XmlPullParser.TEXT) {
+                            if(tagName != null) {
+                                if (tagName.equalsIgnoreCase("device_Id") == true) {
+                                    device_id = xmlParser.getText();
+                                }
+                                else if (tagName.equalsIgnoreCase("device_Name") == true) {
+                                    device_name = xmlParser.getText();
+                                }
+                                if (!device_id.isEmpty() && !device_name.isEmpty()) {
+                                    DeviceInfo deviceInfo = new DeviceInfo(device_id);
+                                    deviceInfo.setDeviceName(device_name);
+                                    diviceList.add(deviceInfo);
+                                    device_id = "";
+                                    device_name = "";
+                                }
+                                tagName = "";
+                            }
+                        }
+                        xmlParser.next();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                request.disconnect();
+            }
+        }catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return diviceList;
+    }
+
+    private void displayDeviceList(List<DeviceInfo> deviceList) {
+        TextView textViewStatus = (TextView)findViewById(R.id.status);
+        StringBuilder stringBuilder = new StringBuilder();
+        for(DeviceInfo info : deviceList) stringBuilder.append(info.deviceId+"\n");
+        textViewStatus.setText(stringBuilder);
+    }
+
+    public class DeviceInfo {
+        private String      deviceId;
+        private String      deviceName;
+
+        public DeviceInfo(String deviceId) {
+            this.deviceId = deviceId;
+        }
+
+        public String getDeviceId(){
+            return deviceId;
+        }
+
+        public String getDeviceName(){
+            return deviceName;
+        }
+
+        public void setDeviceName(String deviceName){
+            this.deviceName = deviceName;
         }
     }
 
@@ -449,7 +599,7 @@ public class MainActivity extends AppCompatActivity {
     private void subscribeDevice() {
         if (mqttService == null) return;
         oneM2MAPI.getInstance().tpSubscription(mqttService, Configuration.ONEM2M_NODEID, Configuration.ONEM2M_NODEID,
-                Configuration.CONTAINER_NAME_LONGITUDE, Configuration.UKEY, new MQTTCallback<subscriptionResponse>() {
+                Configuration.CONTAINER_NAME_LONGITUDE, UKEY, new MQTTCallback<subscriptionResponse>() {
                     @Override
                     public void onResponse(subscriptionResponse response) {
                         MainActivity.this.subscriptionResponse = response;
@@ -615,7 +765,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             node nodeRetrieve = new node.Builder(Operation.Retrieve)
-                    .uKey(Configuration.UKEY).build();
+                    .uKey(UKEY).build();
 
             mqttService.publish(nodeRetrieve, new MQTTCallback<nodeResponse>() {
                 @Override
@@ -671,7 +821,7 @@ public class MainActivity extends AppCompatActivity {
         if (nodeRes == null) return;
 
         remoteCSE remoteCSERetrieve = new remoteCSE.Builder(Operation.Retrieve)
-                .uKey(Configuration.UKEY).build();
+                .uKey(UKEY).build();
         try {
             mqttService.publish(remoteCSERetrieve, new MQTTCallback<remoteCSEResponse>() {
                 @Override
@@ -727,7 +877,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             AE AERetrieve = new AE.Builder(Operation.Retrieve).
                     nm(AERes.getRn()). //Configuration.AE_NAME).
-                    uKey(Configuration.UKEY).build();
+                    uKey(UKEY).build();
 
             mqttService.publish(AERetrieve, new MQTTCallback<AEResponse>() {
                 @Override
@@ -807,7 +957,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             container containerRetrieve = new container.Builder(Operation.Retrieve).
                     nm(Configuration.CONTAINER_NAME_LATITUDE).
-                    uKey(Configuration.UKEY).build();
+                    uKey(UKEY).build();
 
             mqttService.publish(containerRetrieve, new MQTTCallback<containerResponse>() {
                 @Override
@@ -827,7 +977,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             container containerRetrieve = new container.Builder(Operation.Retrieve).
                     nm(Configuration.CONTAINER_NAME_LONGITUDE).
-                    uKey(Configuration.UKEY).build();
+                    uKey(UKEY).build();
 
             mqttService.publish(containerRetrieve, new MQTTCallback<containerResponse>() {
                 @Override
@@ -888,7 +1038,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             mgmtCmd mgmtCmdRetrieve = new mgmtCmd.Builder(Operation.Retrieve).
                     nm(Configuration.ONEM2M_NODEID + "_" + Configuration.CMT_DEVRESET).
-                    uKey(Configuration.UKEY).build();
+                    uKey(UKEY).build();
 
             mqttService.publish(mgmtCmdRetrieve, new MQTTCallback<mgmtCmdResponse>() {
                 @Override
@@ -978,7 +1128,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             contentInstance contentInstanceRetrieve = new contentInstance.Builder(op).
                     containerName(Configuration.CONTAINER_NAME_LATITUDE).
-                    uKey(Configuration.UKEY).
+                    uKey(UKEY).
                     dKey(device.dKey).
                     nm(suffix).build();
 
@@ -1000,7 +1150,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             contentInstance contentInstanceRetrieve = new contentInstance.Builder(op).
                     containerName(Configuration.CONTAINER_NAME_LONGITUDE).
-                    uKey(Configuration.UKEY).
+                    uKey(UKEY).
                     dKey(device.dKey).
                     nm(suffix).build();
 
@@ -1060,7 +1210,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             areaNwkInfo areaNwkInfoRetrieve = new areaNwkInfo.Builder(Operation.Retrieve).
                     nm(Configuration.AREANWKINFO_NAME).
-                    uKey(Configuration.UKEY).build();
+                    uKey(UKEY).build();
 
             mqttService.publish(areaNwkInfoRetrieve, new MQTTCallback<areaNwkInfoResponse>() {
                 @Override
@@ -1116,7 +1266,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             locationPolicy locationPolicyRetrieve = new locationPolicy.Builder(Operation.Retrieve).
                     nm(Configuration.LOCATIONPOLICY_NAME).
-                    uKey(Configuration.UKEY).build();
+                    uKey(UKEY).build();
 
             mqttService.publish(locationPolicyRetrieve, new MQTTCallback<locationPolicyResponse>() {
                 @Override
@@ -1194,7 +1344,7 @@ public class MainActivity extends AppCompatActivity {
                 mgmtCmd mgmtCmdUpdate = new mgmtCmd.Builder(Operation.Update).
                         nm(control.getRn()).
                         exe("true").
-                        uKey(Configuration.UKEY).build();
+                        uKey(UKEY).build();
 
                 mqttService.publish(mgmtCmdUpdate, new MQTTCallback<mgmtCmdResponse>() {
                     @Override

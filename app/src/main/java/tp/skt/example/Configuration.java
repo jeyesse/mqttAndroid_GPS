@@ -10,6 +10,9 @@ public class Configuration {
     public static final String MQTT_HOST = "tcp://mqtt.sktiot.com";
     public static final String MQTT_SECURE_HOST = "ssl://mqtt.sktiot.com";
 
+    public static final String URL_SEARCH_DEFAULT = "https://thingplugtest.sktiot.com:9443";
+    public static final String URL_SEARCH_DEVICE = "/ThingPlug?division=searchDevice&function=myDevice&startIndex=1&countPerPage=50";
+
     public static final String CSEBASE = "thingplug";
     public static final String ONEM2M_TO = "/thingplug/v1_0";
     public static final String ONEM2M_NODEID = "sjs1210_android";
