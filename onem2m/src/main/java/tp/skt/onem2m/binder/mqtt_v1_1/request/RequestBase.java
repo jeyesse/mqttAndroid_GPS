@@ -460,24 +460,30 @@ public class RequestBase extends oneM2MResource {
         protected static class Sub {
             @Expose
             @Element(required = false)
-            //private final String enc;
-            protected final String enc;
-            @Expose
-            @Element(required = false)
             private final String nu;
             @Expose
             @Element(required = false)
             private final String nct;
 
+            @Expose
+            @Element(required = false)
+            protected Enc enc;
 
-            protected Sub(String enc, String nu, String nct) {
-                this.enc = enc;
+            protected Sub(String nu, String nct) {
                 this.nu = nu;
                 this.nct = nct;
             }
+            protected static class Enc {
+                @Expose
+                @Element(required = false)
+                private final String rss;
+
+                public Enc(String rss) {
+                    this.rss = rss;
+                }
+            }
         }
     }
-
 
     protected static abstract class Builder {
         protected final int resourceType;

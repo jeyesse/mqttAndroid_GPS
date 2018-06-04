@@ -180,14 +180,14 @@ public class oneM2MAPI {
      * @param userKey        userKey
      * @param callback       response callback
      */
-    public void tpSubscription(final IMQTT mqttService, final String deviceID, final String targetDeviceID, final String containerName, final String userKey,
-                               final MQTTCallback callback) {
+    public void tpSubscription(final IMQTT mqttService, final String deviceID, final String targetDeviceID,
+                               final String containerName, final String userKey, final MQTTCallback callback) {
         try {
             MQTTUtils.checkNull(mqttService, "IMQTT is null!");
             MQTTUtils.checkNull(callback, "MQTTCallback is null!");
 
             subscription subscription = new subscription.Builder(Definitions.Operation.Create).targetID(targetDeviceID).
-                    containerName(containerName).nm(targetDeviceID + "_" +containerName).uKey(userKey).enc("").
+                    containerName(containerName).nm(targetDeviceID + "_" +containerName).uKey(userKey).rss("1").
                     nu("MQTT|"+ deviceID).nct("2").build();
 
             mqttService.publish(subscription, new MQTTCallback<subscriptionResponse>() {

@@ -152,11 +152,75 @@ public class execInstanceControl extends oneM2MResource {
         return pc.exin.nm;
     }
 
+    public String getSr() {
+        return pc.cin.sr;
+    }
+
     @Root
     private static class Pc {
 
         @Element
         private Exin exin;
+
+        @Element
+        private Cin cin;
+
+
+        private class Cin {
+
+            @Expose
+            @Element(required = false)
+            private String ty;
+
+            @Expose
+            @Element(required = false)
+            private String ri;
+
+            @Expose
+            @Element(required = false)
+            private String rn;
+
+            @Expose
+            @Element(required = false)
+            private String pi;
+
+            @Expose
+            @Element(required = false)
+            private String ct;
+
+            @Expose
+            @Element(required = false)
+            private String lt;
+
+            @Expose
+            @Element(required = false)
+            private String sr;
+
+            @Expose
+            @Element(required = false)
+            private String et;
+
+            @Expose
+            @Element(required = false)
+            private String st;
+
+            @Expose
+            @Element(required = false)
+            private String cr;
+
+            @Expose
+            @Element(required = false)
+            private String cnf;
+
+            @Expose
+            @Element(required = false)
+            private String cs;
+
+            @Expose
+            @Element(required = false)
+            private String con;
+
+        }
 
         @Root(strict = false)
         private static class Exin {
@@ -222,7 +286,7 @@ public class execInstanceControl extends oneM2MResource {
 
     public void print() {
         MQTTUtils.log("[" + Definitions.getResourceName(Definitions.ResourceType.execInstance) + "(control)]");
-        if (pc.exin == null) return;
+        if ((pc.exin == null) | (pc.cin == null)) return;
         MQTTUtils.log("ty : " + pc.exin.ty);
         MQTTUtils.log("ri : " + pc.exin.ri);
         MQTTUtils.log("rn : " + pc.exin.rn);
@@ -235,5 +299,8 @@ public class execInstanceControl extends oneM2MResource {
         MQTTUtils.log("ext : " + pc.exin.ext);
         MQTTUtils.log("exra : " + pc.exin.exra);
         MQTTUtils.log("nm : " + pc.exin.nm);
+        MQTTUtils.log("con : " + pc.cin.con);
+        MQTTUtils.log("sr : " + pc.cin.sr);
+
     }
 }

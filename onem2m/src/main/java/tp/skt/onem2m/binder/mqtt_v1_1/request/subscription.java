@@ -32,15 +32,15 @@ public class subscription extends RequestBase {
          * @param containerName
          */
         private String nu;
-        private String enc;
+        private String rss;
         private String nct;
 
         public Builder(@Definitions.Operation int op) {
             super(op, Definitions.ResourceType.subscription);
         }
 
-        public Builder enc(String enc) {
-            this.enc = enc;
+        public Builder rss(String rss) {
+            this.rss = rss;
             return this;
         }
 
@@ -80,7 +80,8 @@ public class subscription extends RequestBase {
         @Override
         Content getContent() {
             Content content = new Content();
-            content.sub = new Content.Sub(enc, nu, nct);
+            content.sub = new Content.Sub(nu, nct);
+            content.sub.enc = new Content.Sub.Enc(rss);
             return content;
         }
 
