@@ -189,13 +189,15 @@ public class MainActivity extends Activity {
                             @Override
                             public void onPush(execInstanceControl control) {
                                 StringBuilder message = new StringBuilder();
-                                message.append("[execInstance(control)]\n").
-                                        append("ri : ").append(control.getRi()).append("\n").
-                                        append("cmt : ").append(control.getCmt()).append("\n").
-                                        append("ext : ").append(control.getExt()).append("\n").
-                                        append("exra : ").append(control.getExra());
+                                message.append("sr : ").append(control.getSr()).append("\n").
+                                append("con : ").append(control.getCon());
+//                                message.append("[execInstance(control)]\n").
+//                                        append("ri : ").append(control.getRi()).append("\n").
+//                                        append("cmt : ").append(control.getCmt()).append("\n").
+//                                        append("ext : ").append(control.getExt()).append("\n").
+//                                        append("exra : ").append(control.getExra());
                                 showToast(message.toString(), Toast.LENGTH_LONG);
-                                controlResult(control.getNm(), control.getRi());
+//                                controlResult(control.getNm(), control.getRi());
                             }
 
                             @Override

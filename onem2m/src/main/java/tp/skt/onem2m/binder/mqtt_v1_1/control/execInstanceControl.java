@@ -156,17 +156,21 @@ public class execInstanceControl extends oneM2MResource {
         return pc.cin.sr;
     }
 
+    public String getCon() {
+        return pc.cin.con;
+    }
+
     @Root
     private static class Pc {
-
-        @Element
+        @Expose
+        @Element(required = false)
         private Exin exin;
-
-        @Element
+        @Expose
+        @Element(required = false)
         private Cin cin;
 
-
-        private class Cin {
+        @Root(strict = false)
+        private static class Cin {
 
             @Expose
             @Element(required = false)
@@ -286,19 +290,19 @@ public class execInstanceControl extends oneM2MResource {
 
     public void print() {
         MQTTUtils.log("[" + Definitions.getResourceName(Definitions.ResourceType.execInstance) + "(control)]");
-        if ((pc.exin == null) | (pc.cin == null)) return;
-        MQTTUtils.log("ty : " + pc.exin.ty);
-        MQTTUtils.log("ri : " + pc.exin.ri);
-        MQTTUtils.log("rn : " + pc.exin.rn);
-        MQTTUtils.log("ct : " + pc.exin.ct);
-        MQTTUtils.log("lt : " + pc.exin.lt);
-        MQTTUtils.log("et : " + pc.exin.et);
-        MQTTUtils.log("lbl : " + pc.exin.lbl);
-        MQTTUtils.log("exs : " + pc.exin.exs);
-        MQTTUtils.log("exr : " + pc.exin.cmt);
-        MQTTUtils.log("ext : " + pc.exin.ext);
-        MQTTUtils.log("exra : " + pc.exin.exra);
-        MQTTUtils.log("nm : " + pc.exin.nm);
+        if (pc.exin == null & pc.cin == null) return;
+//        MQTTUtils.log("ty : " + pc.exin.ty);
+//        MQTTUtils.log("ri : " + pc.exin.ri);
+//        MQTTUtils.log("rn : " + pc.exin.rn);
+//        MQTTUtils.log("ct : " + pc.exin.ct);
+//        MQTTUtils.log("lt : " + pc.exin.lt);
+//        MQTTUtils.log("et : " + pc.exin.et);
+//        MQTTUtils.log("lbl : " + pc.exin.lbl);
+//        MQTTUtils.log("exs : " + pc.exin.exs);
+//        MQTTUtils.log("exr : " + pc.exin.cmt);
+//        MQTTUtils.log("ext : " + pc.exin.ext);
+//        MQTTUtils.log("exra : " + pc.exin.exra);
+//        MQTTUtils.log("nm : " + pc.exin.nm);
         MQTTUtils.log("con : " + pc.cin.con);
         MQTTUtils.log("sr : " + pc.cin.sr);
 
