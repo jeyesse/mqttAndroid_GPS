@@ -21,7 +21,13 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.HashMap;
+
+import tp.skt.example.Configuration;
+import tp.skt.example.MyApp;
+import tp.skt.example.NodeData;
 import tp.skt.example.R;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -31,6 +37,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //for googleMap
     private GoogleMap mMap;
     private boolean isGPSEnable = false;
+    HashMap<String, NodeData> nodeMap = new HashMap<String , NodeData>();
 
     @SuppressLint("MissingPermission")
     @Override
@@ -50,6 +57,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, gpsListener);
         manager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance, gpsListener);
+        nodeMap = ((MyApp)getApplication()).getNodeMap();
     }
 
 
@@ -84,6 +92,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             try {
                 Location lastLocation = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                mMap.addMarker(new MarkerOptions().
+                        position(new LatLng(Double.parseDouble(nodeMap.get(Configuration.ONEM2M_NODEID).getLatitude()),
+                                Double.parseDouble(nodeMap.get(Configuration.ONEM2M_NODEID).getLongitude()))).
+                        title(Configuration.ONEM2M_NODEID));
 
                 if (lastLocation != null) {
                     latitude = lastLocation.getLatitude();

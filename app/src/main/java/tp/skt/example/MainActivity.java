@@ -1,6 +1,7 @@
 package tp.skt.example;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,7 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.w3c.dom.Text;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -26,6 +26,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -90,6 +91,14 @@ public class MainActivity extends Activity {
     private locationPolicyResponse locationPolicyRes;
     private AEResponse AERes;
     private subscriptionResponse subscriptionResponse;
+
+    /* subscription data */
+    private String subPath;
+    private String[] subPathData;
+    private String subDeviceID;
+    private String subContainer;
+    HashMap<String, NodeData> nodeMap = new HashMap<String , NodeData>();
+    NodeData nodeData = new NodeData();
 
     private final String TAG = "TP_SDK_SAMPLE_APP";
 
@@ -185,12 +194,14 @@ public class MainActivity extends Activity {
                         Configuration.ONEM2M_NODEID,
                         mClientID);
                 mBinder = new Binder();
+                Application app = getApplication();
+                final MyApp myApp = (MyApp) app;
                 mqttService = MQTTClient.connect(IMQTT.class, config, mBinder, new MQTTProcessor.MQTTListener() {
                             @Override
                             public void onPush(execInstanceControl control) {
                                 StringBuilder message = new StringBuilder();
                                 message.append("sr : ").append(control.getSr()).append("\n").
-                                append("con : ").append(control.getCon());
+                                        append("con : ").append(control.getCon());
 //                                message.append("[execInstance(control)]\n").
 //                                        append("ri : ").append(control.getRi()).append("\n").
 //                                        append("cmt : ").append(control.getCmt()).append("\n").
@@ -198,6 +209,24 @@ public class MainActivity extends Activity {
 //                                        append("exra : ").append(control.getExra());
                                 showToast(message.toString(), Toast.LENGTH_LONG);
 //                                controlResult(control.getNm(), control.getRi());
+                                subPath = control.getSr();
+                                subPathData = subPath.split("/");
+                                int index = subPathData[3].indexOf("-");
+                                subDeviceID = subPathData[3].substring(index+1);
+                                index = subPathData[4].indexOf("-");
+                                subContainer = subPathData[4].substring(index+1);
+                                if (subContainer.equals("latitude")==true) {
+                                    nodeData.setLatitude(control.getCon());
+                                }
+                                else if(subContainer.equals("longitude")==true) {
+                                    nodeData.setLongitude(control.getCon());
+                                }
+                                nodeMap.put(subDeviceID, nodeData);
+                                myApp.setNodeMap(nodeMap);
+                                for (HashMap.Entry node: nodeMap.entrySet()) {
+                                    NodeData nodeData1 = (NodeData) node.getValue();
+                                    Log.i("node data Map", node.getKey() + " , " + nodeData1.toString());
+                                }
                             }
 
                             @Override
@@ -259,11 +288,11 @@ public class MainActivity extends Activity {
                         }
                     });
 
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
                 break;
         }
     }
@@ -280,9 +309,9 @@ public class MainActivity extends Activity {
 
     private ArrayList<DeviceInfo> searchDevice(String ukey) {
         ArrayList<DeviceInfo> diviceList = new ArrayList<DeviceInfo>();
-        try{
+        try {
             URL url = new URL(URL_SEARCH_DEFAULT + URL_SEARCH_DEVICE);
-            HttpURLConnection request = (HttpURLConnection)url.openConnection();
+            HttpURLConnection request = (HttpURLConnection) url.openConnection();
             request.setRequestMethod("GET");
             request.setRequestProperty("uKey", ukey);
             request.setRequestProperty("locale", "ko");
@@ -316,13 +345,11 @@ public class MainActivity extends Activity {
                                     || xmlParser.getName().equalsIgnoreCase("device_Name") == true) {
                                 tagName = xmlParser.getName();
                             }
-                        }
-                        else if (xmlParser.getEventType() == XmlPullParser.TEXT) {
-                            if(tagName != null) {
+                        } else if (xmlParser.getEventType() == XmlPullParser.TEXT) {
+                            if (tagName != null) {
                                 if (tagName.equalsIgnoreCase("device_Id") == true) {
                                     device_id = xmlParser.getText();
-                                }
-                                else if (tagName.equalsIgnoreCase("device_Name") == true) {
+                                } else if (tagName.equalsIgnoreCase("device_Name") == true) {
                                     device_name = xmlParser.getText();
                                 }
                                 if (!device_id.isEmpty() && !device_name.isEmpty()) {
@@ -342,7 +369,7 @@ public class MainActivity extends Activity {
                 }
                 request.disconnect();
             }
-        }catch (MalformedURLException e) {
+        } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (ProtocolException e) {
             e.printStackTrace();
@@ -353,29 +380,29 @@ public class MainActivity extends Activity {
     }
 
     private void displayDeviceList(List<DeviceInfo> deviceList) {
-        TextView textViewStatus = (TextView)findViewById(R.id.status);
+        TextView textViewStatus = (TextView) findViewById(R.id.status);
         StringBuilder stringBuilder = new StringBuilder();
-        for(DeviceInfo info : deviceList) stringBuilder.append(info.deviceId+"\n");
+        for (DeviceInfo info : deviceList) stringBuilder.append(info.deviceId + "\n");
         textViewStatus.setText(stringBuilder);
     }
 
     public class DeviceInfo {
-        private String      deviceId;
-        private String      deviceName;
+        private String deviceId;
+        private String deviceName;
 
         public DeviceInfo(String deviceId) {
             this.deviceId = deviceId;
         }
 
-        public String getDeviceId(){
+        public String getDeviceId() {
             return deviceId;
         }
 
-        public String getDeviceName(){
+        public String getDeviceName() {
             return deviceName;
         }
 
-        public void setDeviceName(String deviceName){
+        public void setDeviceName(String deviceName) {
             this.deviceName = deviceName;
         }
     }
@@ -599,20 +626,20 @@ public class MainActivity extends Activity {
      * subscribe device
      */
     private void subscribeDevice() {
-        Log.i(TAG,"subscribeDevice called, mqttService="+mqttService);
+        Log.i(TAG, "subscribeDevice called, mqttService=" + mqttService);
         if (mqttService == null) return;
         oneM2MAPI.getInstance().tpSubscription(mqttService, Configuration.ONEM2M_NODEID, Configuration.ONEM2M_NODEID,
-                Configuration.CONTAINER_NAME_LONGITUDE, UKEY, new MQTTCallback<subscriptionResponse>() {
+                Configuration.CONTAINER_NAME_LATITUDE, UKEY, new MQTTCallback<subscriptionResponse>() {
                     @Override
                     public void onResponse(subscriptionResponse response) {
-                        Log.i(TAG,"subscribeDevice::onResponse = "+response);
+                        Log.i(TAG, "subscribeDevice::onResponse = " + response);
                         MainActivity.this.subscriptionResponse = response;
                         showResponseMessage("subscription CREATE", response);
                     }
 
                     @Override
                     public void onFailure(int errorCode, String message) {
-                        Log.e(TAG, "subscribeDevice::onFailure"+errorCode + " : " + message);
+                        Log.e(TAG, "subscribeDevice::onFailure" + errorCode + " : " + message);
                         showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
                     }
                 });
