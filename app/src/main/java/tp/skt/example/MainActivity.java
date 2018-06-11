@@ -98,7 +98,7 @@ public class MainActivity extends Activity {
     private String subDeviceID;
     private String subContainer;
     HashMap<String, NodeData> nodeMap = new HashMap<String, NodeData>();
-    NodeData nodeData = new NodeData();
+
 
     private final String TAG = "TP_SDK_SAMPLE_APP";
 
@@ -210,6 +210,12 @@ public class MainActivity extends Activity {
                                 subDeviceID = subPathData[3].substring(index + 1);
                                 index = subPathData[4].indexOf("-");
                                 subContainer = subPathData[4].substring(index + 1);
+                                NodeData nodeData;
+                                if(nodeMap.get(subDeviceID) == null) {
+                                    nodeData = new NodeData();
+                                }else {
+                                    nodeData = nodeMap.get(subDeviceID);
+                                }
                                 if (subContainer.equals("latitude") == true) {
                                     nodeData.setLatitude(control.getCon());
                                 } else if (subContainer.equals("longitude") == true) {

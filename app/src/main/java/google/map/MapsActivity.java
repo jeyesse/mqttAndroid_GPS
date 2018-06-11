@@ -13,6 +13,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -37,7 +38,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //for googleMap
     private GoogleMap mMap;
     private boolean isGPSEnable = false;
-    HashMap<String, NodeData> nodeMap = new HashMap<String , NodeData>();
+    HashMap<String, NodeData> nodeMap = new HashMap<String, NodeData>();
 
     @SuppressLint("MissingPermission")
     @Override
@@ -57,7 +58,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, gpsListener);
         manager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance, gpsListener);
-        nodeMap = ((MyApp)getApplication()).getNodeMap();
+        nodeMap = ((MyApp) getApplication()).getNodeMap();
     }
 
 
@@ -92,12 +93,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             try {
                 Location lastLocation = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                double nodeLatitude = Double.parseDouble(nodeMap.get(Configuration.ONEM2M_NODEID).getLatitude());
-                double nodeLongitude = Double.parseDouble(nodeMap.get(Configuration.ONEM2M_NODEID).getLongitude());
-                mMap.addMarker(new MarkerOptions().
-                        position(new LatLng(nodeLatitude,nodeLongitude)).
-                        title(Configuration.ONEM2M_NODEID)).
-                        setSnippet("Lat:" + String.format("%.4f", nodeLatitude) + " Lon:" + String.format("%.4f", nodeLongitude));
+                for (HashMap.Entry node : nodeMap.entrySet()) {
+                    String deviceId = (String) node.getKey();
+                    double nodeLatitude = Double.parseDouble(nodeMap.get(deviceId).getLatitude());
+                    double nodeLongitude = Double.parseDouble(nodeMap.get(deviceId).getLongitude());
+                    mMap.addMarker(new MarkerOptions().
+                            position(new LatLng(nodeLatitude, nodeLongitude)).
+                            title(deviceId).
+                            snippet("Lat:" + String.format("%.4f", nodeLatitude) + " Lon:" + String.format("%.4f", nodeLongitude)));
+                }
 
                 if (lastLocation != null) {
                     latitude = lastLocation.getLatitude();

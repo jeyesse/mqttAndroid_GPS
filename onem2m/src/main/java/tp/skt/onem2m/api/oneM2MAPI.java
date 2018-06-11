@@ -187,7 +187,7 @@ public class oneM2MAPI {
             MQTTUtils.checkNull(callback, "MQTTCallback is null!");
 
             subscription subscription = new subscription.Builder(Definitions.Operation.Create).targetID(targetDeviceID).
-                    containerName(containerName).nm(targetDeviceID + "_" +containerName).uKey(userKey).rss("1").
+                    containerName(containerName).nm(deviceID + "_" +containerName).uKey(userKey).rss("1").
                     nu("MQTT|"+ deviceID).nct("2").build();
 
             mqttService.publish(subscription, new MQTTCallback<subscriptionResponse>() {
