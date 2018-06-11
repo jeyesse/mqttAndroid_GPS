@@ -97,7 +97,7 @@ public class MainActivity extends Activity {
     private String[] subPathData;
     private String subDeviceID;
     private String subContainer;
-    HashMap<String, NodeData> nodeMap = new HashMap<String , NodeData>();
+    HashMap<String, NodeData> nodeMap = new HashMap<String, NodeData>();
     NodeData nodeData = new NodeData();
 
     private final String TAG = "TP_SDK_SAMPLE_APP";
@@ -202,28 +202,23 @@ public class MainActivity extends Activity {
                                 StringBuilder message = new StringBuilder();
                                 message.append("sr : ").append(control.getSr()).append("\n").
                                         append("con : ").append(control.getCon());
-//                                message.append("[execInstance(control)]\n").
-//                                        append("ri : ").append(control.getRi()).append("\n").
-//                                        append("cmt : ").append(control.getCmt()).append("\n").
-//                                        append("ext : ").append(control.getExt()).append("\n").
-//                                        append("exra : ").append(control.getExra());
                                 showToast(message.toString(), Toast.LENGTH_LONG);
 //                                controlResult(control.getNm(), control.getRi());
                                 subPath = control.getSr();
                                 subPathData = subPath.split("/");
                                 int index = subPathData[3].indexOf("-");
-                                subDeviceID = subPathData[3].substring(index+1);
+                                subDeviceID = subPathData[3].substring(index + 1);
                                 index = subPathData[4].indexOf("-");
-                                subContainer = subPathData[4].substring(index+1);
-                                if (subContainer.equals("latitude")==true) {
+                                subContainer = subPathData[4].substring(index + 1);
+                                if (subContainer.equals("latitude") == true) {
                                     nodeData.setLatitude(control.getCon());
-                                }
-                                else if(subContainer.equals("longitude")==true) {
+                                } else if (subContainer.equals("longitude") == true) {
                                     nodeData.setLongitude(control.getCon());
                                 }
+                                nodeData.setTime(control.getLt());
                                 nodeMap.put(subDeviceID, nodeData);
                                 myApp.setNodeMap(nodeMap);
-                                for (HashMap.Entry node: nodeMap.entrySet()) {
+                                for (HashMap.Entry node : nodeMap.entrySet()) {
                                     NodeData nodeData1 = (NodeData) node.getValue();
                                     Log.i("node data Map", node.getKey() + " , " + nodeData1.toString());
                                 }
@@ -628,22 +623,54 @@ public class MainActivity extends Activity {
     private void subscribeDevice() {
         Log.i(TAG, "subscribeDevice called, mqttService=" + mqttService);
         if (mqttService == null) return;
-        oneM2MAPI.getInstance().tpSubscription(mqttService, Configuration.ONEM2M_NODEID, Configuration.ONEM2M_NODEID,
-                Configuration.CONTAINER_NAME_LATITUDE, UKEY, new MQTTCallback<subscriptionResponse>() {
-                    @Override
-                    public void onResponse(subscriptionResponse response) {
-                        Log.i(TAG, "subscribeDevice::onResponse = " + response);
-                        MainActivity.this.subscriptionResponse = response;
-                        showResponseMessage("subscription CREATE", response);
-                    }
+        try {
+            final List<DeviceInfo> deviceList = new DeviceListTask().execute().get();
 
-                    @Override
-                    public void onFailure(int errorCode, String message) {
-                        Log.e(TAG, "subscribeDevice::onFailure" + errorCode + " : " + message);
-                        showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
-                    }
-                });
+            // display device list
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    displayDeviceList(deviceList);
+                    for(DeviceInfo info : deviceList) {
+                        oneM2MAPI.getInstance().tpSubscription(mqttService, Configuration.ONEM2M_NODEID, info.deviceId,
+                                Configuration.CONTAINER_NAME_LATITUDE, UKEY, new MQTTCallback<subscriptionResponse>() {
+                            @Override
+                            public void onResponse(subscriptionResponse response) {
+                                Log.i(TAG, "subscribeDevice::onResponse = " + response);
+                                MainActivity.this.subscriptionResponse = response;
+                                showResponseMessage("subscription Latitude CREATE", response);
+                            }
 
+                            @Override
+                            public void onFailure(int errorCode, String message) {
+                                Log.e(TAG, "subscribeDevice::onFailure(Latitude) " + errorCode + " : " + message);
+                                showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
+                            }
+                        });
+                        oneM2MAPI.getInstance().tpSubscription(mqttService, Configuration.ONEM2M_NODEID, info.deviceId,
+                                Configuration.CONTAINER_NAME_LONGITUDE, UKEY, new MQTTCallback<subscriptionResponse>() {
+                                    @Override
+                                    public void onResponse(subscriptionResponse response) {
+                                        Log.i(TAG, "subscribeDevice::onResponse = " + response);
+                                        MainActivity.this.subscriptionResponse = response;
+                                        showResponseMessage("subscription Longitude CREATE", response);
+                                    }
+
+                                    @Override
+                                    public void onFailure(int errorCode, String message) {
+                                        Log.e(TAG, "subscribeDevice::onFailure(Longitude) " + errorCode + " : " + message);
+                                        showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
+                                    }
+                                });
+                    }
+                }
+            });
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
     /*

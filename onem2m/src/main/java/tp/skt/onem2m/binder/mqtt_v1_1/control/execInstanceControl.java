@@ -41,7 +41,7 @@ public class execInstanceControl extends oneM2MResource {
      * @return ty
      */
     public String getTy() {
-        return pc.exin.ty;
+        return pc.cin.ty;
     }
 
     /**
@@ -50,7 +50,7 @@ public class execInstanceControl extends oneM2MResource {
      * @return ri
      */
     public String getRi() {
-        return pc.exin.ri;
+        return pc.cin.ri;
     }
 
     /**
@@ -59,7 +59,7 @@ public class execInstanceControl extends oneM2MResource {
      * @return rn
      */
     public String getRn() {
-        return pc.exin.rn;
+        return pc.cin.rn;
     }
 
     /**
@@ -68,7 +68,7 @@ public class execInstanceControl extends oneM2MResource {
      * @return pi
      */
     public String getPi() {
-        return pc.exin.pi;
+        return pc.cin.pi;
     }
 
     /**
@@ -77,7 +77,7 @@ public class execInstanceControl extends oneM2MResource {
      * @return ct
      */
     public String getCt() {
-        return pc.exin.ct;
+        return pc.cin.ct;
     }
 
     /**
@@ -86,7 +86,7 @@ public class execInstanceControl extends oneM2MResource {
      * @return lt
      */
     public String getLt() {
-        return pc.exin.lt;
+        return pc.cin.lt;
     }
 
     /**
@@ -95,61 +95,23 @@ public class execInstanceControl extends oneM2MResource {
      * @return et
      */
     public String getEt() {
-        return pc.exin.et;
+        return pc.cin.et;
     }
 
-    /**
-     * get labels
-     *
-     * @return lbl
-     */
-    public String getLbl() {
-        return pc.exin.lbl;
+    public String getSt() {
+        return pc.cin.st;
     }
 
-    /**
-     * get execStatus
-     *
-     * @return exs
-     */
-    public String getExs() {
-        return pc.exin.exs;
+    public String getCr() {
+        return pc.cin.cr;
     }
 
-    /**
-     * get cmdType
-     *
-     * @return cmt
-     */
-    public String getCmt() {
-        return pc.exin.cmt;
+    public String getCnf() {
+        return pc.cin.cnf;
     }
 
-    /**
-     * get execTarget
-     *
-     * @return ext
-     */
-    public String getExt() {
-        return pc.exin.ext;
-    }
-
-    /**
-     * get execRegArgs
-     *
-     * @return
-     */
-    public String getExra() {
-        return pc.exin.exra;
-    }
-
-    /**
-     * get mgmtCmd name
-     *
-     * @return nm
-     */
-    public String getNm() {
-        return pc.exin.nm;
+    public String getCs() {
+        return pc.cin.cs;
     }
 
     public String getSr() {
@@ -162,9 +124,11 @@ public class execInstanceControl extends oneM2MResource {
 
     @Root
     private static class Pc {
+        /*
         @Expose
         @Element(required = false)
         private Exin exin;
+        */
         @Expose
         @Element(required = false)
         private Cin cin;
@@ -225,7 +189,7 @@ public class execInstanceControl extends oneM2MResource {
             private String con;
 
         }
-
+        /*
         @Root(strict = false)
         private static class Exin {
 
@@ -281,6 +245,7 @@ public class execInstanceControl extends oneM2MResource {
             @Element(required = false)
             private String exra;
         }
+        */
     }
 
     @Override
@@ -290,21 +255,19 @@ public class execInstanceControl extends oneM2MResource {
 
     public void print() {
         MQTTUtils.log("[" + Definitions.getResourceName(Definitions.ResourceType.execInstance) + "(control)]");
-        if (pc.exin == null & pc.cin == null) return;
-//        MQTTUtils.log("ty : " + pc.exin.ty);
-//        MQTTUtils.log("ri : " + pc.exin.ri);
-//        MQTTUtils.log("rn : " + pc.exin.rn);
-//        MQTTUtils.log("ct : " + pc.exin.ct);
-//        MQTTUtils.log("lt : " + pc.exin.lt);
-//        MQTTUtils.log("et : " + pc.exin.et);
-//        MQTTUtils.log("lbl : " + pc.exin.lbl);
-//        MQTTUtils.log("exs : " + pc.exin.exs);
-//        MQTTUtils.log("exr : " + pc.exin.cmt);
-//        MQTTUtils.log("ext : " + pc.exin.ext);
-//        MQTTUtils.log("exra : " + pc.exin.exra);
-//        MQTTUtils.log("nm : " + pc.exin.nm);
-        MQTTUtils.log("con : " + pc.cin.con);
+        if (pc.cin == null) return;
+        MQTTUtils.log("ty : " + pc.cin.ty);
+        MQTTUtils.log("ri : " + pc.cin.ri);
+        MQTTUtils.log("rn : " + pc.cin.rn);
+        MQTTUtils.log("pi : " + pc.cin.pi);
+        MQTTUtils.log("ct : " + pc.cin.ct);
+        MQTTUtils.log("lt : " + pc.cin.lt);
         MQTTUtils.log("sr : " + pc.cin.sr);
-
+        MQTTUtils.log("et : " + pc.cin.et);
+        MQTTUtils.log("st : " + pc.cin.st);
+        MQTTUtils.log("cr : " + pc.cin.cr);
+        MQTTUtils.log("cnf : " + pc.cin.cnf);
+        MQTTUtils.log("cs : " + pc.cin.cs);
+        MQTTUtils.log("con : " + pc.cin.con);
     }
 }

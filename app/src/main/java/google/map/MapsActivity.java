@@ -92,10 +92,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             try {
                 Location lastLocation = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                double nodeLatitude = Double.parseDouble(nodeMap.get(Configuration.ONEM2M_NODEID).getLatitude());
+                double nodeLongitude = Double.parseDouble(nodeMap.get(Configuration.ONEM2M_NODEID).getLongitude());
                 mMap.addMarker(new MarkerOptions().
-                        position(new LatLng(Double.parseDouble(nodeMap.get(Configuration.ONEM2M_NODEID).getLatitude()),
-                                Double.parseDouble(nodeMap.get(Configuration.ONEM2M_NODEID).getLongitude()))).
-                        title(Configuration.ONEM2M_NODEID));
+                        position(new LatLng(nodeLatitude,nodeLongitude)).
+                        title(Configuration.ONEM2M_NODEID)).
+                        setSnippet("Lat:" + String.format("%.4f", nodeLatitude) + " Lon:" + String.format("%.4f", nodeLongitude));
 
                 if (lastLocation != null) {
                     latitude = lastLocation.getLatitude();
