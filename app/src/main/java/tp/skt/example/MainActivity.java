@@ -216,10 +216,16 @@ public class MainActivity extends Activity {
                                 }else {
                                     nodeData = nodeMap.get(subDeviceID);
                                 }
-                                if (subContainer.equals("latitude") == true) {
-                                    nodeData.setLatitude(control.getCon());
-                                } else if (subContainer.equals("longitude") == true) {
-                                    nodeData.setLongitude(control.getCon());
+                                switch(subContainer) {
+                                    case "Geolocation_latitude":
+                                        nodeData.setLatitude(control.getCon());
+                                        break;
+                                    case "Geolocation_longitude":
+                                        nodeData.setLongitude(control.getCon());
+                                        break;
+                                    case "Smoke":
+                                        nodeData.setSmoke(control.getCon());
+                                        break;
                                 }
                                 nodeData.setTime(control.getLt());
                                 nodeMap.put(subDeviceID, nodeData);
@@ -668,6 +674,26 @@ public class MainActivity extends Activity {
                                         showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
                                     }
                                 });
+                        oneM2MAPI.getInstance().tpSubscription(mqttService, Configuration.ONEM2M_NODEID, info.deviceId,
+                                Configuration.CONTAINER_NAME_SMOKE, UKEY, new MQTTCallback<subscriptionResponse>() {
+                                    @Override
+                                    public void onResponse(subscriptionResponse response) {
+                                        Log.i(TAG, "subscribeDevice::onResponse = " + response);
+                                        MainActivity.this.subscriptionResponse = response;
+                                        showResponseMessage("subscription Smoke CREATE", response);
+                                    }
+
+                                    @Override
+                                    public void onFailure(int errorCode, String message) {
+                                        Log.e(TAG, "subscribeDevice::onFailure(Longitude) " + errorCode + " : " + message);
+                                        showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
+                                    }
+                                });
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             });

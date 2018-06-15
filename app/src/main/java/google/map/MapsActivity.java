@@ -21,6 +21,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -97,10 +98,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     String deviceId = (String) node.getKey();
                     double nodeLatitude = Double.parseDouble(nodeMap.get(deviceId).getLatitude());
                     double nodeLongitude = Double.parseDouble(nodeMap.get(deviceId).getLongitude());
-                    mMap.addMarker(new MarkerOptions().
-                            position(new LatLng(nodeLatitude, nodeLongitude)).
-                            title(deviceId).
-                            snippet("Lat:" + String.format("%.4f", nodeLatitude) + " Lon:" + String.format("%.4f", nodeLongitude)));
+                    if (deviceId.indexOf("F") == 9) {
+                        if ((nodeMap.get(deviceId).getSmoke()).equals("FIRE_START")) {
+                            mMap.addMarker(new MarkerOptions().
+                                    position(new LatLng(nodeLatitude, nodeLongitude)).
+                                    title(deviceId).
+                                    icon(BitmapDescriptorFactory.fromResource(R.drawable.fire)).
+                                    alpha(0.5f).
+                                    snippet("Lat:" + String.format("%.4f", nodeLatitude) + " Lon:" + String.format("%.4f", nodeLongitude)));
+                            LatLng fireLocation = new LatLng(nodeLatitude, nodeLongitude);
+                            mMap.moveCamera(CameraUpdateFactory.newLatLng(fireLocation));
+                        } else {
+                            mMap.addMarker(new MarkerOptions().
+                                    position(new LatLng(nodeLatitude, nodeLongitude)).
+                                    title(deviceId).
+                                    icon(BitmapDescriptorFactory.fromResource(R.drawable.detect)).
+                                    alpha(0.5f).
+                                    snippet("Lat:" + String.format("%.4f", nodeLatitude) + " Lon:" + String.format("%.4f", nodeLongitude)));
+                        }
+                    } else if (deviceId.indexOf("E") == 9) {
+                        mMap.addMarker(new MarkerOptions().
+                                position(new LatLng(nodeLatitude, nodeLongitude)).
+                                title(deviceId).
+                                icon(BitmapDescriptorFactory.fromResource(R.drawable.exti)).
+                                alpha(0.5f).
+                                snippet("Lat:" + String.format("%.4f", nodeLatitude) + " Lon:" + String.format("%.4f", nodeLongitude)));
+                    } else
+                        mMap.addMarker(new MarkerOptions().
+                                position(new LatLng(nodeLatitude, nodeLongitude)).
+                                title(deviceId).
+                                alpha(0.5f).
+                                icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).
+                                snippet("Lat:" + String.format("%.4f", nodeLatitude) + " Lon:" + String.format("%.4f", nodeLongitude)));
                 }
 
                 if (lastLocation != null) {
@@ -108,7 +137,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     longitude = lastLocation.getLongitude();
                     LatLng myLocation = new LatLng(latitude, longitude);
 
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
+//                    mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
                     CameraUpdate zoom = CameraUpdateFactory.zoomTo(20);
                     mMap.animateCamera(zoom);
                 } else {

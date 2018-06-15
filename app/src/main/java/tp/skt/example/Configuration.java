@@ -15,12 +15,13 @@ public class Configuration {
 
     public static final String CSEBASE = "thingplug";
     public static final String ONEM2M_TO = "/thingplug/v1_0";
-    public static final String ONEM2M_NODEID = "sjs1210_android";
+    public static final String ONEM2M_NODEID = "edgeilab_android";
     public static final String ONEM2M_PASSCODE = "123456";
     public static final String ONEM2M_TARGET_DEVICE = "sjs1210_IoT_EM";
 
-    public static final String CONTAINER_NAME_LATITUDE = "latitude";
-    public static final String CONTAINER_NAME_LONGITUDE ="longitude";
+    public static final String CONTAINER_NAME_LATITUDE = "Geolocation_latitude";
+    public static final String CONTAINER_NAME_LONGITUDE ="Geolocation_longitude";
+    public static final String CONTAINER_NAME_SMOKE = "Smoke";
     public static final String MGMTCMD_NAME = ONEM2M_NODEID + "_DevReset";
     public static final String AREANWKINFO_NAME = ONEM2M_NODEID + "_areaNwkInfo_01";
     public static final String LOCATIONPOLICY_NAME = ONEM2M_NODEID + "_locationPolicy_01";
@@ -32,6 +33,6 @@ public class Configuration {
     public static final String CMT_TAKEPHOTO = "TakePhoto";
     public static final String CMT_LEDCONTROL = "LEDControl";
 
-    public static final String ACCOUNT_ID = "sjs1210";
-    public static final String UKEY = "WEZsQytadnBaOGNWandsMzEvK0ZYVlpMbm5QVXNsYmhGb0ZvU20vbVVGTFlCUEVZNGdFZDdhaHRoTDNTeHpYWA==";
+    public static final String ACCOUNT_ID = "edgeilab";
+    public static final String UKEY = "ZEwxMW9DZmNQK3dudWdRcTV4bVhEK1ByK3U2amtxU3NCWjE0OERNREI3QkUwdCtsSmhZWDQ4eGRURkd0NVFIUw==";
 }
