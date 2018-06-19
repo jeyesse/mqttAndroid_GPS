@@ -136,6 +136,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     latitude = lastLocation.getLatitude();
                     longitude = lastLocation.getLongitude();
                     LatLng myLocation = new LatLng(latitude, longitude);
+                    mMap.addMarker(new MarkerOptions().
+                            position(myLocation).
+                            title("My location").
+                            alpha(0.5f).
+                            snippet("Lat:" + String.format("%.4f", latitude) + " Lon:" + String.format("%.4f", longitude)));
 
 //                    mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
                     CameraUpdate zoom = CameraUpdateFactory.zoomTo(20);

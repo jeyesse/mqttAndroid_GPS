@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "C:\\Users\\user\\AndroidStudioProjects\\thingplug-sdk-android-master\\thingplug-sdk-android-master\\mqttAndroid_GPS\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values\\values.xml",
+            "outputFile": "C:\\Users\\user\\AndroidStudioProjects\\Fire-Fire\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values\\values.xml",
             "map": [
                 {
                     "source": "C:\\Users\\user\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-26.1.0.aar\\5603742d25b32bad866e26c76f066bcc\\res\\values\\values.xml",
@@ -42,43 +42,41 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\user\\AndroidStudioProjects\\thingplug-sdk-android-master\\thingplug-sdk-android-master\\mqttAndroid_GPS\\app\\src\\main\\res\\values\\styles.xml",
+                    "source": "C:\\Users\\user\\AndroidStudioProjects\\Fire-Fire\\app\\src\\main\\res\\values\\dimens.xml",
                     "from": {
-                        "startLines": "3",
-                        "startColumns": "4",
-                        "startOffsets": "57",
-                        "endLines": "8",
-                        "endColumns": "12",
-                        "endOffsets": "376"
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "88,146",
+                        "endColumns": "57,55",
+                        "endOffsets": "141,197"
                     },
                     "to": {
-                        "startLines": "630",
-                        "startColumns": "4",
-                        "startOffsets": "56600",
-                        "endLines": "635",
-                        "endColumns": "12",
-                        "endOffsets": "56914"
+                        "startLines": "509,510",
+                        "startColumns": "4,4",
+                        "startOffsets": "47368,47426",
+                        "endColumns": "57,55",
+                        "endOffsets": "47421,47477"
                     }
                 },
                 {
-                    "source": "C:\\Users\\user\\AndroidStudioProjects\\thingplug-sdk-android-master\\thingplug-sdk-android-master\\mqttAndroid_GPS\\app\\src\\main\\res\\values\\colors.xml",
+                    "source": "C:\\Users\\user\\AndroidStudioProjects\\Fire-Fire\\app\\src\\main\\res\\values\\strings.xml",
                     "from": {
-                        "startLines": "4,2,3",
+                        "startLines": "1,3,2",
                         "startColumns": "4,4,4",
-                        "startOffsets": "157,57,105",
-                        "endColumns": "45,46,50",
-                        "endOffsets": "198,99,151"
+                        "startOffsets": "16,135,82",
+                        "endColumns": "65,51,52",
+                        "endOffsets": "77,182,130"
                     },
                     "to": {
-                        "startLines": "153,154,155",
+                        "startLines": "601,623,624",
                         "startColumns": "4,4,4",
-                        "startOffsets": "7753,7799,7846",
-                        "endColumns": "45,46,50",
-                        "endOffsets": "7794,7841,7892"
+                        "startOffsets": "53392,56053,56105",
+                        "endColumns": "65,51,52",
+                        "endOffsets": "53453,56100,56153"
                     }
                 },
                 {
-                    "source": "C:\\Users\\user\\AndroidStudioProjects\\thingplug-sdk-android-master\\thingplug-sdk-android-master\\mqttAndroid_GPS\\app\\src\\debug\\res\\values\\google_maps_api.xml",
+                    "source": "C:\\Users\\user\\AndroidStudioProjects\\Fire-Fire\\app\\src\\debug\\res\\values\\google_maps_api.xml",
                     "from": {
                         "startLines": "22",
                         "startColumns": "4",
@@ -114,20 +112,39 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\user\\AndroidStudioProjects\\thingplug-sdk-android-master\\thingplug-sdk-android-master\\mqttAndroid_GPS\\app\\src\\main\\res\\values\\dimens.xml",
+                    "source": "C:\\Users\\user\\AndroidStudioProjects\\Fire-Fire\\app\\src\\main\\res\\values\\colors.xml",
                     "from": {
-                        "startLines": "2,3",
-                        "startColumns": "4,4",
-                        "startOffsets": "90,149",
-                        "endColumns": "57,55",
-                        "endOffsets": "143,200"
+                        "startLines": "4,2,3",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "153,55,102",
+                        "endColumns": "45,46,50",
+                        "endOffsets": "194,97,148"
                     },
                     "to": {
-                        "startLines": "509,510",
-                        "startColumns": "4,4",
-                        "startOffsets": "47368,47426",
-                        "endColumns": "57,55",
-                        "endOffsets": "47421,47477"
+                        "startLines": "153,154,155",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "7753,7799,7846",
+                        "endColumns": "45,46,50",
+                        "endOffsets": "7794,7841,7892"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\user\\AndroidStudioProjects\\Fire-Fire\\app\\src\\main\\res\\values\\styles.xml",
+                    "from": {
+                        "startLines": "3",
+                        "startColumns": "4",
+                        "startOffsets": "54",
+                        "endLines": "8",
+                        "endColumns": "12",
+                        "endOffsets": "368"
+                    },
+                    "to": {
+                        "startLines": "630",
+                        "startColumns": "4",
+                        "startOffsets": "56600",
+                        "endLines": "635",
+                        "endColumns": "12",
+                        "endOffsets": "56914"
                     }
                 },
                 {
@@ -145,23 +162,6 @@
                         "startOffsets": "9987,140448,140624,140746,141008,141203",
                         "endColumns": "88,65,121,60,65,66",
                         "endOffsets": "10071,140509,140741,140802,141069,141265"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\user\\AndroidStudioProjects\\thingplug-sdk-android-master\\thingplug-sdk-android-master\\mqttAndroid_GPS\\app\\src\\main\\res\\values\\strings.xml",
-                    "from": {
-                        "startLines": "1,3,2",
-                        "startColumns": "4,4,4",
-                        "startOffsets": "17,138,84",
-                        "endColumns": "65,51,52",
-                        "endOffsets": "78,185,132"
-                    },
-                    "to": {
-                        "startLines": "601,623,624",
-                        "startColumns": "4,4,4",
-                        "startOffsets": "53392,56053,56105",
-                        "endColumns": "65,51,52",
-                        "endOffsets": "53453,56100,56153"
                     }
                 },
                 {

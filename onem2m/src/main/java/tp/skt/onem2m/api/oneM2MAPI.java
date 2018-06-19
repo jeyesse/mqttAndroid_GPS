@@ -58,12 +58,13 @@ public class oneM2MAPI {
      * (node 와 remoteCSE 를 등록한다.)
      *
      * @param mqttService        MQTT service
+     * @param clientId           client ID
      * @param passcode           passcode
      * @param cseType            cseType
      * @param requestRechability requestRechability
      * @param callback           response callback
      */
-    public void tpRegisterDevice(final IMQTT mqttService, final String passcode,
+    public void tpRegisterDevice(final IMQTT mqttService, final String clientId, final String passcode,
                                  final String cseType, final String requestRechability, final MQTTCallback callback) {
         try {
             MQTTUtils.checkNull(mqttService, "IMQTT is null!");
@@ -71,7 +72,8 @@ public class oneM2MAPI {
 
             // node CREATE
             node nodeCreate = new node.Builder(Definitions.Operation.Create).
-                    mga("MQTT|{" + MQTTConst.CLIENT_ID + "}").build();
+                    mga("MQTT|{" + MQTTConst.CLIENT_ID + "}").fr(clientId).
+                    ni(clientId).nm(clientId).build();
 
             mqttService.publish(nodeCreate, new MQTTCallback<nodeResponse>() {
                 @Override
@@ -88,7 +90,7 @@ public class oneM2MAPI {
                             // remoteCSE CREATE
                             remoteCSE remoteCSECreate = new remoteCSE.Builder(Definitions.Operation.Create).
                                     passCode(passcode).
-                                    cst(cseType).
+                                    cst(cseType).fr(clientId).nm(clientId).csi(clientId).
 //                                    poa("MQTT|{" + MQTTConst.RESOURCE_ID + "}").
         rr(requestRechability).
                                             nl(response.getRi()).build();
@@ -188,7 +190,7 @@ public class oneM2MAPI {
 
             subscription subscription = new subscription.Builder(Definitions.Operation.Create).targetID(targetDeviceID).
                     containerName(containerName).nm(deviceID + "_" +containerName).uKey(userKey).rss("1").
-                    nu("MQTT|"+ deviceID).nct("2").build();
+                    nu("MQTT|"+ deviceID).nct("2").fr(deviceID).build();
 
             mqttService.publish(subscription, new MQTTCallback<subscriptionResponse>() {
                 @Override

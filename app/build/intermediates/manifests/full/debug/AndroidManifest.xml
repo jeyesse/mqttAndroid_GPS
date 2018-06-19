@@ -21,6 +21,7 @@
         android:required="true" />
 
     <application
+        android:name="tp.skt.example.MyApp"
         android:allowBackup="true"
         android:debuggable="true"
         android:icon="@mipmap/ic_launcher"

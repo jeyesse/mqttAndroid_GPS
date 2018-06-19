@@ -78,13 +78,13 @@ public class NodeData {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("ID : ").append(id);
-        sb.append("smoke : ").append(smoke);
-        sb.append("fire : ").append(fire);
-        sb.append("address : ").append(address);
-        sb.append("latitude : ").append(latitude);
-        sb.append("longitude : ").append(longitude);
-        sb.append("time : ").append(time);
-        sb.append("battery : ").append(battery);
+        sb.append("\nsmoke : ").append(smoke);
+        sb.append(" fire : ").append(fire);
+        sb.append("\naddress : ").append(address);
+        sb.append("\nlatitude : ").append(latitude);
+        sb.append(" longitude : ").append(longitude);
+        sb.append("\ntime : ").append(time);
+        sb.append("\nbattery : ").append(battery);
         return String.valueOf(sb);
     }
 }

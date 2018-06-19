@@ -1,4 +1,4 @@
-#Tue May 29 15:47:30 KST 2018
-base.0=C\:\\Users\\user\\AndroidStudioProjects\\thingplug-sdk-android-master\\thingplug-sdk-android-master\\mqttAndroid_GPS\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\0
+#Tue Jun 19 09:17:42 KST 2018
+base.0=C\:\\Users\\user\\AndroidStudioProjects\\Fire-Fire\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\0
 path.0=classes.dex
 renamed.0=classes.dex

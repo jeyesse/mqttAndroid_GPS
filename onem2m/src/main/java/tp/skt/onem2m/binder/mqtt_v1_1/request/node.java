@@ -86,6 +86,10 @@ public class node extends RequestBase {
             this.uKey = uKey;
             return this;
         }
+        public Builder fr(String fr) {
+            this.fr = fr;
+            return this;
+        }
 
 
         @Override
