@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.simpleframework.xml.stream.NodeMap;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -57,6 +58,7 @@ import tp.skt.onem2m.binder.mqtt_v1_1.response.areaNwkInfoResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.containerResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.contentInstanceResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.execInstanceResponse;
+import tp.skt.onem2m.binder.mqtt_v1_1.response.latestResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.locationPolicyResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.mgmtCmdResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.nodeResponse;
@@ -82,6 +84,8 @@ public class MainActivity extends Activity {
     private IMQTT mqttService;
     MQTTConfiguration config;
 
+    Application app = getApplication();
+
     // values
     private nodeResponse nodeRes;
     private remoteCSEResponse device;
@@ -91,7 +95,6 @@ public class MainActivity extends Activity {
     private mgmtCmdResponse control;
     private locationPolicyResponse locationPolicyRes;
     private AEResponse AERes;
-    private subscriptionResponse subscriptionResponse;
 
     /* subscription data */
     private String subPath;
@@ -99,7 +102,7 @@ public class MainActivity extends Activity {
     private String subDeviceID;
     private String subContainer;
     HashMap<String, NodeData> nodeMap = new HashMap<String, NodeData>();
-
+    HashMap<String, ArrayList> latestData = new HashMap<>();
 
     private final String TAG = "TP_SDK_SAMPLE_APP";
 
@@ -189,8 +192,6 @@ public class MainActivity extends Activity {
                         Configuration.ONEM2M_NODEID,
                         mClientID);
                 mBinder = new Binder();
-                Application app = getApplication();
-                final MyApp myApp = (MyApp) app;
                 mqttService = MQTTClient.connect(IMQTT.class, config, mBinder, new MQTTProcessor.MQTTListener() {
                             @Override
                             public void onPush(execInstanceControl control) {
@@ -198,8 +199,11 @@ public class MainActivity extends Activity {
                                 message.append("sr : ").append(control.getSr()).append("\n").
                                         append("con : ").append(control.getCon());
                                 Log.i("GET SR&CON", message.toString());
-                                //showToast(message.toString(), Toast.LENGTH_LONG);
-//                                controlResult(control.getNm(), control.getRi());
+                                /*
+                                * susbscription 사용 시, 정보를 저장하는 부분
+                                *
+                                showToast(message.toString(), Toast.LENGTH_LONG);
+                                controlResult(control.getNm(), control.getRi());
                                 subPath = control.getSr();
                                 subPathData = subPath.split("/");
                                 int index = subPathData[3].indexOf("-");
@@ -225,12 +229,12 @@ public class MainActivity extends Activity {
                                 }
                                 nodeData.setTime(control.getLt());
                                 nodeMap.put(subDeviceID, nodeData);
-                                myApp.setNodeMap(nodeMap);
                                 for (HashMap.Entry node : nodeMap.entrySet()) {
                                     NodeData nodeData1 = (NodeData) node.getValue();
                                     //Log.i("node data Map", node.getKey() + " , " + nodeData1.toString());
                                     setStatus("node Data : \n" + nodeData1.toString());
                                 }
+                                */
                             }
 
                             @Override
@@ -248,7 +252,7 @@ public class MainActivity extends Activity {
                             public void onSubscribed() {
                                 setStatus(SUBSCRIBED);
                                 showToast("subscribed!", Toast.LENGTH_SHORT);
-                                subscribeDevice();
+                                getLatestInstance();
                             }
 
                             @Override
@@ -612,6 +616,8 @@ public class MainActivity extends Activity {
 
     /*
      * subscribe device
+     * ThingPlug에서 Subscription은 2개까지만 허용
+     * 게이트웨이용
      */
     private void subscribeDevice() {
         Log.i(TAG, "subscribeDevice called, mqttService=" + mqttService);
@@ -635,7 +641,6 @@ public class MainActivity extends Activity {
                                     @Override
                                     public void onResponse(subscriptionResponse response) {
                                         Log.i(TAG, "subscribeDevice::onResponse = " + response);
-                                        MainActivity.this.subscriptionResponse = response;
                                         Log.i("sub Latitude CREATE", response.toString());
                                     }
 
@@ -650,7 +655,6 @@ public class MainActivity extends Activity {
                                     @Override
                                     public void onResponse(subscriptionResponse response) {
                                         Log.i(TAG, "subscribeDevice::onResponse = " + response);
-                                        MainActivity.this.subscriptionResponse = response;
                                         Log.i("sub Longitude CREATE", response.toString());
                                     }
 
@@ -665,7 +669,6 @@ public class MainActivity extends Activity {
                                     @Override
                                     public void onResponse(subscriptionResponse response) {
                                         Log.i(TAG, "subscribeDevice::onResponse = " + response);
-                                        MainActivity.this.subscriptionResponse = response;
                                         Log.i("sub Smoke CREATE", response.toString());
                                     }
 
@@ -1695,4 +1698,90 @@ public class MainActivity extends Activity {
 
     }
 
+    private void getLatestInstance() {
+        if (mqttService == null) return;
+        try {
+            final List<DeviceInfo> deviceList = new DeviceListTask().execute().get();
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    displayDeviceList(deviceList);
+                    for (final DeviceInfo info : deviceList) {
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        oneM2MAPI.getInstance().tpLatest(mqttService, info.deviceId, Configuration.CONTAINER_NAME_LONGITUDE
+                                , UKEY, new MQTTCallback<latestResponse>() {
+                                    @Override
+                                    public void onResponse(latestResponse response) {
+                                        Log.i("get latest longitude", response.toString());
+                                        setNode(response.ri, response);
+                                    }
+
+                                    @Override
+                                    public void onFailure(int errorCode, String message) {
+                                        Log.e("get latest long err", errorCode + " : " + message);
+
+                                    }
+                                });
+                        oneM2MAPI.getInstance().tpLatest(mqttService, info.deviceId, Configuration.CONTAINER_NAME_LATITUDE
+                                , UKEY, new MQTTCallback<latestResponse>() {
+                                    @Override
+                                    public void onResponse(latestResponse response) {
+                                        Log.i("get latest latitude", response.toString());
+                                        setNode(response.ri, response);
+                                    }
+
+                                    @Override
+                                    public void onFailure(int errorCode, String message) {
+                                        Log.e("get latest latitude err", errorCode + " : " + message);
+
+                                    }
+                                });
+                    }
+                }
+            });
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void setNode(String ri, latestResponse response) {
+        Application app = getApplication();
+        final MyApp myApp = (MyApp) app;
+        latestData = oneM2MAPI.getInstance().latestData;
+        ArrayList list = latestData.get(ri);
+        if (response.getCon() == null) return;
+        list.add(response.getCon());
+        list.add(response.getLt());
+        latestData.put(ri, list);
+        NodeData nodeData;
+        String deviceId = (String) list.get(0);
+        if (nodeMap.get(deviceId) == null) {
+            nodeData = new NodeData();
+        } else {
+            nodeData = nodeMap.get(deviceId);
+        }
+        switch ((String) list.get(1)) {
+            case "Geolocation_latitude":
+                nodeData.setLatitude((String) list.get(2));
+                break;
+            case "Geolocation_longitude":
+                nodeData.setLongitude((String) list.get(2));
+                break;
+            case "Smoke":
+                nodeData.setSmoke((String) list.get(2));
+                break;
+        }
+        nodeData.setTime((String) list.get(3));
+        nodeMap.put(deviceId, nodeData);
+        Log.i("set Node list", list.toString());
+        Log.i("set Node nodeMap", nodeMap.toString());
+        myApp.setNodeMap(nodeMap);
+    }
 }

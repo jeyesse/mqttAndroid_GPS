@@ -15,9 +15,8 @@ public class Configuration {
 
     public static final String CSEBASE = "thingplug";
     public static final String ONEM2M_TO = "/thingplug/v1_0";
-    public static final String ONEM2M_NODEID = "edgeilab_android";
+    public static final String ONEM2M_NODEID = "edgeilab_android_03";
     public static final String ONEM2M_PASSCODE = "123456";
-    public static final String ONEM2M_TARGET_DEVICE = "sjs1210_IoT_EM";
 
     public static final String CONTAINER_NAME_LATITUDE = "Geolocation_latitude";
     public static final String CONTAINER_NAME_LONGITUDE ="Geolocation_longitude";

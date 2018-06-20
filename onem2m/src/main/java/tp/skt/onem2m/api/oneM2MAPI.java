@@ -1,9 +1,18 @@
 package tp.skt.onem2m.api;
 
+import android.util.Log;
+
+import com.google.gson.annotations.Expose;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import tp.skt.onem2m.binder.mqtt_v1_1.Definitions;
 import tp.skt.onem2m.binder.mqtt_v1_1.request.container;
 import tp.skt.onem2m.binder.mqtt_v1_1.request.contentInstance;
 import tp.skt.onem2m.binder.mqtt_v1_1.request.execInstance;
+import tp.skt.onem2m.binder.mqtt_v1_1.request.latest;
 import tp.skt.onem2m.binder.mqtt_v1_1.request.mgmtCmd;
 import tp.skt.onem2m.binder.mqtt_v1_1.request.node;
 import tp.skt.onem2m.binder.mqtt_v1_1.request.remoteCSE;
@@ -11,6 +20,7 @@ import tp.skt.onem2m.binder.mqtt_v1_1.request.subscription;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.containerResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.contentInstanceResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.execInstanceResponse;
+import tp.skt.onem2m.binder.mqtt_v1_1.response.latestResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.mgmtCmdResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.nodeResponse;
 import tp.skt.onem2m.binder.mqtt_v1_1.response.remoteCSEResponse;
@@ -176,7 +186,7 @@ public class oneM2MAPI {
      * 구독신청을 한다.
      *
      * @param mqttService    MQTT service
-     * @param deviceID      deviceID
+     * @param deviceID       deviceID
      * @param targetDeviceID targetDeviceID
      * @param containerName  containerName
      * @param userKey        userKey
@@ -189,8 +199,8 @@ public class oneM2MAPI {
             MQTTUtils.checkNull(callback, "MQTTCallback is null!");
 
             subscription subscription = new subscription.Builder(Definitions.Operation.Create).targetID(targetDeviceID).
-                    containerName(containerName).nm(deviceID + "_" +containerName).uKey(userKey).rss("1").
-                    nu("MQTT|"+ deviceID).nct("2").fr(deviceID).build();
+                    containerName(containerName).nm(deviceID + "_" + containerName).uKey(userKey).rss("1").
+                    nu("MQTT|" + deviceID).nct("2").fr(deviceID).build();
 
             mqttService.publish(subscription, new MQTTCallback<subscriptionResponse>() {
                 @Override
@@ -353,4 +363,45 @@ public class oneM2MAPI {
         }
     }
 
+    /**
+     * 가장 최근의 instance값을 호출한다.
+     *
+     * @param mqttService    MQTT service
+     * @param targetDeviceID target Device ID
+     * @param containerName  container Name
+     * @param userKey        user Key
+     * @param callback       response callback
+     */
+    public HashMap<String , ArrayList> latestData = new HashMap<>();
+    public void tpLatest(final IMQTT mqttService, final String targetDeviceID,
+                         final String containerName, final String userKey, final MQTTCallback callback) {
+
+        try {
+            MQTTUtils.checkNull(mqttService, "IMQTT is null!");
+            MQTTUtils.checkNull(callback, "MQTTCallback is null!");
+
+            latest latestRetrieve = new latest.Builder(Definitions.Operation.Retrieve).targetID(targetDeviceID).
+                    containerName(containerName).uKey(userKey).build();
+            ArrayList list = new ArrayList();
+            list.add(targetDeviceID);
+            list.add(containerName);
+            //Log.i("request list", list.toString());
+            latestData.put(latestRetrieve.getRequestIdentifier(), list);
+            mqttService.publish(latestRetrieve, new MQTTCallback<latestResponse>() {
+
+                @Override
+                public void onResponse(latestResponse response) {
+                    callback.onResponse(response);
+                }
+
+                @Override
+                public void onFailure(int errorCode, String message) {
+                    callback.onFailure(errorCode, message);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            callback.onFailure(Definitions.ResponseStatusCode.INTERNAL_SDK_ERROR, e.getMessage());
+        }
+    }
 }
