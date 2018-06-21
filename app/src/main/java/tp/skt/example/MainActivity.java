@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -84,8 +85,6 @@ public class MainActivity extends Activity {
     private IMQTT mqttService;
     MQTTConfiguration config;
 
-    Application app = getApplication();
-
     // values
     private nodeResponse nodeRes;
     private remoteCSEResponse device;
@@ -102,7 +101,7 @@ public class MainActivity extends Activity {
     private String subDeviceID;
     private String subContainer;
     HashMap<String, NodeData> nodeMap = new HashMap<String, NodeData>();
-    HashMap<String, ArrayList> latestData = new HashMap<>();
+    ArrayList<Pair> latestDataList;
 
     private final String TAG = "TP_SDK_SAMPLE_APP";
 
@@ -121,6 +120,10 @@ public class MainActivity extends Activity {
     // binder
     private Binder mBinder;
 
+    //Thread boolean
+    boolean killTread = true;
+    boolean threadGoOn = true;
+
     /**
      * @return 0 ~ 99999
      */
@@ -130,13 +133,31 @@ public class MainActivity extends Activity {
         return id.nextInt(100000);
     }
 
+    Thread timerThread = new Thread(() -> {
+        while (killTread) {
+            try {
+                Thread.sleep(1);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (threadGoOn) {
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e) {
+                }
+                getLatestInstance();
+                Log.i("thread", "getLatestInstance called");
+            }
+        }
+    });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //mClientID = Configuration.ACCOUNT_ID + "_" + getRandomNumber();
-        mClientID = Configuration.ONEM2M_NODEID;
+        mClientID = Configuration.ACCOUNT_ID + "_" + getRandomNumber();
+        //mClientID = Configuration.ONEM2M_NODEID;
         MQTTClient.Builder builder = new MQTTClient.Builder(MainActivity.this)
                 .baseUrl(Configuration.MQTT_SECURE_HOST)
                 .clientId(mClientID)
@@ -147,6 +168,8 @@ public class MainActivity extends Activity {
         MQTTClient = builder.build();
         TextView textView = findViewById(R.id.status);
         textView.setVisibility(View.INVISIBLE);
+
+        timerThread.start();
     }
 
     public void onClick(View view) {
@@ -176,6 +199,7 @@ public class MainActivity extends Activity {
             case R.id.disconnect:
                 if (mStatus > DISCONNECTED) {
                     MQTTClient.disconnect();
+                    mqttService = null;
                 }
                 break;
 //            case R.id.update:
@@ -240,6 +264,7 @@ public class MainActivity extends Activity {
                             @Override
                             public void onDisconnected() {
                                 setStatus(DISCONNECTED);
+                                threadGoOn = false;
                                 showToast("disconnected!", Toast.LENGTH_SHORT);
                             }
 
@@ -265,6 +290,7 @@ public class MainActivity extends Activity {
                             public void onConnected() {
                                 showToast("connected!", Toast.LENGTH_SHORT);
                                 registerDevice();
+                                threadGoOn = true;
                             }
 
                             @Override
@@ -624,64 +650,50 @@ public class MainActivity extends Activity {
         if (mqttService == null) return;
         try {
             final List<DeviceInfo> deviceList = new DeviceListTask().execute().get();
+            for (DeviceInfo info : deviceList) {
+                oneM2MAPI.getInstance().tpSubscription(mqttService, mClientID, info.deviceId,
+                        Configuration.CONTAINER_NAME_LATITUDE, UKEY, new MQTTCallback<subscriptionResponse>() {
+                            @Override
+                            public void onResponse(subscriptionResponse response) {
+                                Log.i(TAG, "subscribeDevice::onResponse = " + response);
+                                Log.i("sub Latitude CREATE", response.toString());
+                            }
 
-            // display device list
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    displayDeviceList(deviceList);
-                    for (DeviceInfo info : deviceList) {
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        oneM2MAPI.getInstance().tpSubscription(mqttService, mClientID, info.deviceId,
-                                Configuration.CONTAINER_NAME_LATITUDE, UKEY, new MQTTCallback<subscriptionResponse>() {
-                                    @Override
-                                    public void onResponse(subscriptionResponse response) {
-                                        Log.i(TAG, "subscribeDevice::onResponse = " + response);
-                                        Log.i("sub Latitude CREATE", response.toString());
-                                    }
+                            @Override
+                            public void onFailure(int errorCode, String message) {
+                                Log.e(TAG, "subscribeDevice::onFailure(Latitude) " + errorCode + " : " + message);
+                                //showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
+                            }
+                        });
+                oneM2MAPI.getInstance().tpSubscription(mqttService, mClientID, info.deviceId,
+                        Configuration.CONTAINER_NAME_LONGITUDE, UKEY, new MQTTCallback<subscriptionResponse>() {
+                            @Override
+                            public void onResponse(subscriptionResponse response) {
+                                Log.i(TAG, "subscribeDevice::onResponse = " + response);
+                                Log.i("sub Longitude CREATE", response.toString());
+                            }
 
-                                    @Override
-                                    public void onFailure(int errorCode, String message) {
-                                        Log.e(TAG, "subscribeDevice::onFailure(Latitude) " + errorCode + " : " + message);
-                                        //showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
-                                    }
-                                });
-                        oneM2MAPI.getInstance().tpSubscription(mqttService, mClientID, info.deviceId,
-                                Configuration.CONTAINER_NAME_LONGITUDE, UKEY, new MQTTCallback<subscriptionResponse>() {
-                                    @Override
-                                    public void onResponse(subscriptionResponse response) {
-                                        Log.i(TAG, "subscribeDevice::onResponse = " + response);
-                                        Log.i("sub Longitude CREATE", response.toString());
-                                    }
+                            @Override
+                            public void onFailure(int errorCode, String message) {
+                                Log.e(TAG, "subscribeDevice::onFailure(Longitude) " + errorCode + " : " + message);
+                                //showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
+                            }
+                        });
+                oneM2MAPI.getInstance().tpSubscription(mqttService, mClientID, info.deviceId,
+                        Configuration.CONTAINER_NAME_SMOKE, UKEY, new MQTTCallback<subscriptionResponse>() {
+                            @Override
+                            public void onResponse(subscriptionResponse response) {
+                                Log.i(TAG, "subscribeDevice::onResponse = " + response);
+                                Log.i("sub Smoke CREATE", response.toString());
+                            }
 
-                                    @Override
-                                    public void onFailure(int errorCode, String message) {
-                                        Log.e(TAG, "subscribeDevice::onFailure(Longitude) " + errorCode + " : " + message);
-                                        //showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
-                                    }
-                                });
-                        oneM2MAPI.getInstance().tpSubscription(mqttService, mClientID, info.deviceId,
-                                Configuration.CONTAINER_NAME_SMOKE, UKEY, new MQTTCallback<subscriptionResponse>() {
-                                    @Override
-                                    public void onResponse(subscriptionResponse response) {
-                                        Log.i(TAG, "subscribeDevice::onResponse = " + response);
-                                        Log.i("sub Smoke CREATE", response.toString());
-                                    }
-
-                                    @Override
-                                    public void onFailure(int errorCode, String message) {
-                                        Log.e(TAG, "subscribeDevice::onFailure(Longitude) " + errorCode + " : " + message);
-                                        //showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
-                                    }
-                                });
-                    }
-                }
-            });
-
+                            @Override
+                            public void onFailure(int errorCode, String message) {
+                                Log.e(TAG, "subscribeDevice::onFailure(Longitude) " + errorCode + " : " + message);
+                                //showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
+                            }
+                        });
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -775,9 +787,9 @@ public class MainActivity extends Activity {
                 });
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // other API guide
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+// other API guide
+///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * CSEBase Retrieve
@@ -1702,48 +1714,50 @@ public class MainActivity extends Activity {
         if (mqttService == null) return;
         try {
             final List<DeviceInfo> deviceList = new DeviceListTask().execute().get();
+            for (final DeviceInfo info : deviceList) {
+                oneM2MAPI.getInstance().tpLatest(mqttService, info.deviceId, Configuration.CONTAINER_NAME_LONGITUDE
+                        , UKEY, new MQTTCallback<latestResponse>() {
+                            @Override
+                            public void onResponse(latestResponse response) {
+                                Log.i("get latest longitude", response.toString());
+                                setNode(response.ri, response);
+                            }
 
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    displayDeviceList(deviceList);
-                    for (final DeviceInfo info : deviceList) {
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        oneM2MAPI.getInstance().tpLatest(mqttService, info.deviceId, Configuration.CONTAINER_NAME_LONGITUDE
-                                , UKEY, new MQTTCallback<latestResponse>() {
-                                    @Override
-                                    public void onResponse(latestResponse response) {
-                                        Log.i("get latest longitude", response.toString());
-                                        setNode(response.ri, response);
-                                    }
+                            @Override
+                            public void onFailure(int errorCode, String message) {
+                                Log.e("get latest long err", errorCode + " : " + message);
 
-                                    @Override
-                                    public void onFailure(int errorCode, String message) {
-                                        Log.e("get latest long err", errorCode + " : " + message);
+                            }
+                        });
+                oneM2MAPI.getInstance().tpLatest(mqttService, info.deviceId, Configuration.CONTAINER_NAME_LATITUDE
+                        , UKEY, new MQTTCallback<latestResponse>() {
+                            @Override
+                            public void onResponse(latestResponse response) {
+                                Log.i("get latest latitude", response.toString());
+                                setNode(response.ri, response);
+                            }
 
-                                    }
-                                });
-                        oneM2MAPI.getInstance().tpLatest(mqttService, info.deviceId, Configuration.CONTAINER_NAME_LATITUDE
-                                , UKEY, new MQTTCallback<latestResponse>() {
-                                    @Override
-                                    public void onResponse(latestResponse response) {
-                                        Log.i("get latest latitude", response.toString());
-                                        setNode(response.ri, response);
-                                    }
+                            @Override
+                            public void onFailure(int errorCode, String message) {
+                                Log.e("get latest latitude err", errorCode + " : " + message);
 
-                                    @Override
-                                    public void onFailure(int errorCode, String message) {
-                                        Log.e("get latest latitude err", errorCode + " : " + message);
+                            }
+                        });
+                oneM2MAPI.getInstance().tpLatest(mqttService, info.deviceId, Configuration.CONTAINER_NAME_SMOKE
+                        , UKEY, new MQTTCallback<latestResponse>() {
+                            @Override
+                            public void onResponse(latestResponse response) {
+                                Log.i("get latest smoke", response.toString());
+                                setNode(response.ri, response);
+                            }
 
-                                    }
-                                });
-                    }
-                }
-            });
+                            @Override
+                            public void onFailure(int errorCode, String message) {
+                                Log.e("get latest latitude err", errorCode + " : " + message);
+
+                            }
+                        });
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -1754,12 +1768,22 @@ public class MainActivity extends Activity {
     void setNode(String ri, latestResponse response) {
         Application app = getApplication();
         final MyApp myApp = (MyApp) app;
-        latestData = oneM2MAPI.getInstance().latestData;
-        ArrayList list = latestData.get(ri);
+        Pair<String, ArrayList> latestData = null;
+        ArrayList list = null;
+        latestDataList = oneM2MAPI.getInstance().latestDataList;
+        for (int i = 0; i < latestDataList.size(); i++) {
+            latestData = latestDataList.get(i);
+            if (latestData.first.equals(ri)) {
+                Log.i("latestData : ", latestData.first + "ri : " + ri);
+                list = latestData.second;
+            } else {
+                continue;
+            }
+        }
         if (response.getCon() == null) return;
         list.add(response.getCon());
         list.add(response.getLt());
-        latestData.put(ri, list);
+
         NodeData nodeData;
         String deviceId = (String) list.get(0);
         if (nodeMap.get(deviceId) == null) {
@@ -1782,6 +1806,12 @@ public class MainActivity extends Activity {
         nodeMap.put(deviceId, nodeData);
         Log.i("set Node list", list.toString());
         Log.i("set Node nodeMap", nodeMap.toString());
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                setStatus(nodeMap.toString());
+            }
+        });
         myApp.setNodeMap(nodeMap);
     }
 }

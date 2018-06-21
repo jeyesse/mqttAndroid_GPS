@@ -1,6 +1,7 @@
 package tp.skt.onem2m.api;
 
 import android.util.Log;
+import android.util.Pair;
 
 import com.google.gson.annotations.Expose;
 
@@ -372,7 +373,8 @@ public class oneM2MAPI {
      * @param userKey        user Key
      * @param callback       response callback
      */
-    public HashMap<String , ArrayList> latestData = new HashMap<>();
+    private Pair<String , ArrayList> latestData;
+    public ArrayList<Pair> latestDataList = new ArrayList<>(10000);
     public void tpLatest(final IMQTT mqttService, final String targetDeviceID,
                          final String containerName, final String userKey, final MQTTCallback callback) {
 
@@ -386,7 +388,20 @@ public class oneM2MAPI {
             list.add(targetDeviceID);
             list.add(containerName);
             //Log.i("request list", list.toString());
-            latestData.put(latestRetrieve.getRequestIdentifier(), list);
+
+            /**
+             * latestData가 1만개가 축적되면 5천개를 지운다.
+             * if(size(latestData) >= 10000) {
+             * latestData.remove(가장 먼저 저장된 값 5천개);
+             * }
+            */
+            latestData = new Pair<>(latestRetrieve.getRequestIdentifier(), list);
+            if (latestDataList.size() >= 10000) {
+                for (int i = 0; i < 5000; i++)
+                latestDataList.remove(i);
+            }
+            latestDataList.add(latestData);
+
             mqttService.publish(latestRetrieve, new MQTTCallback<latestResponse>() {
 
                 @Override

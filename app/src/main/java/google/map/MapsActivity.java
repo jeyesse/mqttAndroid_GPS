@@ -60,6 +60,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, gpsListener);
         manager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance, gpsListener);
         nodeMap = ((MyApp) getApplication()).getNodeMap();
+        Log.i("maps activity", nodeMap.toString());
     }
 
 
@@ -96,8 +97,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Location lastLocation = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 for (HashMap.Entry node : nodeMap.entrySet()) {
                     String deviceId = (String) node.getKey();
-                    double nodeLatitude = Double.parseDouble(nodeMap.get(deviceId).getLatitude());
-                    double nodeLongitude = Double.parseDouble(nodeMap.get(deviceId).getLongitude());
+                    Double nodeLatitude, nodeLongitude;
+                    try {
+                        nodeLatitude = Double.parseDouble(nodeMap.get(deviceId).getLatitude());
+                        nodeLongitude = Double.parseDouble(nodeMap.get(deviceId).getLongitude());
+                    }catch (NumberFormatException e) {
+                        continue;
+                    }
                     if (deviceId.indexOf("F") == 9) {
                         if ((nodeMap.get(deviceId).getSmoke()).equals("FIRE_START")) {
                             mMap.addMarker(new MarkerOptions().
@@ -131,7 +137,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).
                                 snippet("Lat:" + String.format("%.4f", nodeLatitude) + " Lon:" + String.format("%.4f", nodeLongitude)));
                 }
-
                 if (lastLocation != null) {
                     latitude = lastLocation.getLatitude();
                     longitude = lastLocation.getLongitude();
