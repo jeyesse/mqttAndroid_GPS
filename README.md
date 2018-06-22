@@ -5,4 +5,6 @@ ThingPlug oneM2M SDK를 이용한 oneM2M API를 사용하여 화재감지기와 
 
 ## 동작
 
+![](app_explain.png)
+
 참조:SKT ThingPlug 예제
