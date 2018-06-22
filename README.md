@@ -1,8 +1,8 @@
-Simple Test App
+ThingPlug와 연동한 화재감지 TEST 어플
 ===
-Simple Test App은 ThingPlug oneM2M SDK를 이용한 oneM2M API 동작 테스트를 위한 App입니다.
+ThingPlug oneM2M SDK를 이용한 oneM2M API를 사용하여 화재감지기와 소화기의 위치를 표시하고,
+화재가 발생하면 그 위치를 표시하도록 하는 어플입니다.
 
 ## 동작
-![](simple_app.png)
 
-Copyright (c) 2017 SK Telecom Co., Ltd. All Rights Reserved.
+참조:SKT ThingPlug 예제
