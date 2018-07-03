@@ -2,9 +2,11 @@ package tp.skt.example;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,7 +20,12 @@ import org.simpleframework.xml.stream.NodeMap;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -139,11 +146,13 @@ public class MainActivity extends Activity {
                 Thread.sleep(1);
             } catch (Exception e) {
                 e.printStackTrace();
+                appendLog("killTread err : " + e.toString());
             }
             if (threadGoOn) {
                 try {
                     Thread.sleep(1000);
                 } catch (Exception e) {
+                    appendLog("threadGoOn err : " + e.toString());
                 }
                 getLatestInstance();
                 Log.i("thread", "getLatestInstance called");
@@ -531,6 +540,7 @@ public class MainActivity extends Activity {
                                 public void onFailure(int errorCode, String message) {
                                     Log.e(TAG, message);
                                     showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
+                                    appendLog("unregistered Deivce err" + errorCode + " : " + message);
                                 }
                             });
                         } catch (MqttException e) {
@@ -595,6 +605,7 @@ public class MainActivity extends Activity {
                     @Override
                     public void onFailure(int errorCode, String message) {
                         Log.e(TAG, errorCode + " : " + message);
+                        appendLog("registerDevice err" + errorCode + " : " + message);
                         //showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
                     }
                 });
@@ -836,6 +847,7 @@ public class MainActivity extends Activity {
                 @Override
                 public void onFailure(int errorCode, String message) {
                     Log.e(TAG, message);
+                    appendLog("node Create err" + errorCode + " : " + message);
                 }
             });
         } catch (Exception e) {
@@ -862,6 +874,7 @@ public class MainActivity extends Activity {
                 @Override
                 public void onFailure(int errorCode, String message) {
                     Log.e(TAG, errorCode + " : " + message);
+                    appendLog("node Retrieve err" + errorCode + " : " + message);
                 }
             });
         } catch (Exception e) {
@@ -893,6 +906,7 @@ public class MainActivity extends Activity {
                 @Override
                 public void onFailure(int errorCode, String message) {
                     Log.e(TAG, message);
+                    appendLog("remoteCSE err " + errorCode + " : " + message);
                 }
             });
         } catch (Exception e) {
@@ -1726,6 +1740,7 @@ public class MainActivity extends Activity {
                             @Override
                             public void onFailure(int errorCode, String message) {
                                 Log.e("get latest long err", errorCode + " : " + message);
+                                appendLog("get Latest long err" + errorCode + " : " + message);
 
                             }
                         });
@@ -1740,6 +1755,7 @@ public class MainActivity extends Activity {
                             @Override
                             public void onFailure(int errorCode, String message) {
                                 Log.e("get latest latitude err", errorCode + " : " + message);
+                                appendLog("get Latest lat err" + errorCode + " : " + message);
 
                             }
                         });
@@ -1753,7 +1769,8 @@ public class MainActivity extends Activity {
 
                             @Override
                             public void onFailure(int errorCode, String message) {
-                                Log.e("get latest latitude err", errorCode + " : " + message);
+                                Log.e("get latest Smoke err", errorCode + " : " + message);
+                                appendLog("get Latest Smoke err" + errorCode + " : " + message);
 
                             }
                         });
@@ -1813,5 +1830,25 @@ public class MainActivity extends Activity {
             }
         });
         myApp.setNodeMap(nodeMap);
+    }
+
+    public void appendLog(String text) {
+        String root = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/";
+        File logFile = new File(root + "log.txt");
+        if (!logFile.exists()) {
+            try {
+                logFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
+            buf.append(text);
+            buf.newLine();
+            buf.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
