@@ -1724,6 +1724,9 @@ public class MainActivity extends Activity {
 
     }
 
+    /*
+    가장 최근의 인스턴스 값을 가져오는 부분
+     */
     private void getLatestInstance() {
         if (mqttService == null) return;
         try {
@@ -1782,6 +1785,9 @@ public class MainActivity extends Activity {
         }
     }
 
+    /*
+    내 어플리케이션에 nodeMap을 저장하는 부분
+     */
     void setNode(String ri, latestResponse response) {
         Application app = getApplication();
         final MyApp myApp = (MyApp) app;
@@ -1806,6 +1812,7 @@ public class MainActivity extends Activity {
         if (nodeMap.get(deviceId) == null) {
             nodeData = new NodeData();
         } else {
+
             nodeData = nodeMap.get(deviceId);
         }
         switch ((String) list.get(1)) {
@@ -1832,6 +1839,9 @@ public class MainActivity extends Activity {
         myApp.setNodeMap(nodeMap);
     }
 
+    /*
+    내장 메모리에 로그를 텍스트 파일로 저장하는 메소드 
+     */
     public void appendLog(String text) {
         String root = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/";
         File logFile = new File(root + "log.txt");
