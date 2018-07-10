@@ -1803,7 +1803,7 @@ public class MainActivity extends Activity {
                 continue;
             }
         }
-        if (response.getCon() == null) return;
+        if (Integer.parseInt(response.rsc) >= 4000) return;
         list.add(response.getCon());
         list.add(response.getLt());
 
@@ -1840,7 +1840,7 @@ public class MainActivity extends Activity {
     }
 
     /*
-    내장 메모리에 로그를 텍스트 파일로 저장하는 메소드 
+    내장 메모리에 로그를 텍스트 파일로 저장하는 메소드
      */
     public void appendLog(String text) {
         String root = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/";
