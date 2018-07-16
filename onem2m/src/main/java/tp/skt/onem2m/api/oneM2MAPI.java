@@ -374,7 +374,7 @@ public class oneM2MAPI {
      * @param callback       response callback
      */
     private Pair<String , ArrayList> latestData;
-    public ArrayList<Pair> latestDataList = new ArrayList<>(10000);
+    public ArrayList<Pair> latestDataList = new ArrayList<>(1000);
     public void tpLatest(final IMQTT mqttService, final String targetDeviceID,
                          final String containerName, final String userKey, final MQTTCallback callback) {
 
@@ -390,14 +390,14 @@ public class oneM2MAPI {
             //Log.i("request list", list.toString());
 
             /**
-             * latestData가 1만개가 축적되면 5천개를 지운다.
-             * if(size(latestData) >= 10000) {
-             * latestData.remove(가장 먼저 저장된 값 5천개);
+             * latestData가 1천개가 축적되면 5백개를 지운다.
+             * if(size(latestData) >= 1000) {
+             * latestData.remove(가장 먼저 저장된 값 5백개);
              * }
             */
             latestData = new Pair<>(latestRetrieve.getRequestIdentifier(), list);
-            if (latestDataList.size() >= 10000) {
-                for (int i = 0; i < 5000; i++)
+            if (latestDataList.size() >= 1000) {
+                for (int i = 0; i < 500; i++)
                 latestDataList.remove(i);
             }
             latestDataList.add(latestData);
