@@ -146,13 +146,13 @@ public class MainActivity extends Activity {
                 Thread.sleep(1);
             } catch (Exception e) {
                 e.printStackTrace();
-                appendLog("killTread err : " + e.toString());
+                Log.e("timerThread", "killTread err : " + e.toString());
             }
             if (threadGoOn) {
                 try {
                     Thread.sleep(1000);
                 } catch (Exception e) {
-                    appendLog("threadGoOn err : " + e.toString());
+                    Log.e("timerThread", "threadGoOn err : " + e.toString());
                 }
                 getLatestInstance();
                 Log.i("thread", "getLatestInstance called");
@@ -540,7 +540,7 @@ public class MainActivity extends Activity {
                                 public void onFailure(int errorCode, String message) {
                                     Log.e(TAG, message);
                                     showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
-                                    appendLog("unregistered Deivce err" + errorCode + " : " + message);
+//                                    appendLog("unregistered Deivce err" + errorCode + " : " + message);
                                 }
                             });
                         } catch (MqttException e) {
@@ -605,7 +605,7 @@ public class MainActivity extends Activity {
                     @Override
                     public void onFailure(int errorCode, String message) {
                         Log.e(TAG, errorCode + " : " + message);
-                        appendLog("registerDevice err" + errorCode + " : " + message);
+//                        appendLog("registerDevice err" + errorCode + " : " + message);
                         //showToast("fail - " + errorCode + ":" + message, Toast.LENGTH_LONG);
                     }
                 });
@@ -847,7 +847,7 @@ public class MainActivity extends Activity {
                 @Override
                 public void onFailure(int errorCode, String message) {
                     Log.e(TAG, message);
-                    appendLog("node Create err" + errorCode + " : " + message);
+//                    appendLog("node Create err" + errorCode + " : " + message);
                 }
             });
         } catch (Exception e) {
@@ -874,7 +874,7 @@ public class MainActivity extends Activity {
                 @Override
                 public void onFailure(int errorCode, String message) {
                     Log.e(TAG, errorCode + " : " + message);
-                    appendLog("node Retrieve err" + errorCode + " : " + message);
+//                    appendLog("node Retrieve err" + errorCode + " : " + message);
                 }
             });
         } catch (Exception e) {
@@ -906,7 +906,7 @@ public class MainActivity extends Activity {
                 @Override
                 public void onFailure(int errorCode, String message) {
                     Log.e(TAG, message);
-                    appendLog("remoteCSE err " + errorCode + " : " + message);
+//                    appendLog("remoteCSE err " + errorCode + " : " + message);
                 }
             });
         } catch (Exception e) {
@@ -1743,7 +1743,7 @@ public class MainActivity extends Activity {
                             @Override
                             public void onFailure(int errorCode, String message) {
                                 Log.e("get latest long err", errorCode + " : " + message);
-                                appendLog("get Latest long err" + errorCode + " : " + message);
+//                                appendLog("get Latest long err" + errorCode + " : " + message);
 
                             }
                         });
@@ -1758,7 +1758,7 @@ public class MainActivity extends Activity {
                             @Override
                             public void onFailure(int errorCode, String message) {
                                 Log.e("get latest latitude err", errorCode + " : " + message);
-                                appendLog("get Latest lat err" + errorCode + " : " + message);
+//                                appendLog("get Latest lat err" + errorCode + " : " + message);
 
                             }
                         });
@@ -1773,7 +1773,7 @@ public class MainActivity extends Activity {
                             @Override
                             public void onFailure(int errorCode, String message) {
                                 Log.e("get latest Smoke err", errorCode + " : " + message);
-                                appendLog("get Latest Smoke err" + errorCode + " : " + message);
+//                                appendLog("get Latest Smoke err" + errorCode + " : " + message);
 
                             }
                         });
@@ -1804,8 +1804,14 @@ public class MainActivity extends Activity {
             }
         }
         if (Integer.parseInt(response.rsc) >= 4000) return;
-        list.add(response.getCon());
-        list.add(response.getLt());
+        else {
+            try {
+            list.add(response.getCon());
+            list.add(response.getLt());
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         NodeData nodeData;
         String deviceId = (String) list.get(0);
@@ -1842,6 +1848,7 @@ public class MainActivity extends Activity {
     /*
     내장 메모리에 로그를 텍스트 파일로 저장하는 메소드
      */
+    /*
     public void appendLog(String text) {
         String root = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download/";
         File logFile = new File(root + "log.txt");
@@ -1861,4 +1868,5 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
     }
+    */
 }
