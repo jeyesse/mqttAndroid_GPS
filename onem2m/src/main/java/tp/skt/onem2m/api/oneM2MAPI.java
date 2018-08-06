@@ -373,16 +373,17 @@ public class oneM2MAPI {
      * @param userKey        user Key
      * @param callback       response callback
      */
-    private Pair<String , ArrayList> latestData;
+    private Pair<String, ArrayList> latestData;
     public ArrayList<Pair> latestDataList = new ArrayList<>(1000);
-    public void tpLatest(final IMQTT mqttService, final String targetDeviceID,
-                         final String containerName, final String userKey, final MQTTCallback callback) {
+
+    public void tpLatest(IMQTT mqttService, String targetDeviceID,
+                         String containerName, String userKey, final MQTTCallback callback) {
 
         try {
             MQTTUtils.checkNull(mqttService, "IMQTT is null!");
             MQTTUtils.checkNull(callback, "MQTTCallback is null!");
 
-            latest latestRetrieve = new latest.Builder(Definitions.Operation.Retrieve).targetID(targetDeviceID).
+            final latest latestRetrieve = new latest.Builder(Definitions.Operation.Retrieve).targetID(targetDeviceID).
                     containerName(containerName).uKey(userKey).build();
             ArrayList list = new ArrayList();
             list.add(targetDeviceID);
@@ -394,16 +395,15 @@ public class oneM2MAPI {
              * if(size(latestData) >= 1000) {
              * latestData.remove(가장 먼저 저장된 값 5백개);
              * }
-            */
+             */
             latestData = new Pair<>(latestRetrieve.getRequestIdentifier(), list);
             if (latestDataList.size() >= 1000) {
                 for (int i = 0; i < 500; i++)
-                latestDataList.remove(i);
+                    latestDataList.remove(i);
             }
             latestDataList.add(latestData);
 
-            mqttService.publish(latestRetrieve, new MQTTCallback<latestResponse>() {
-
+            MQTTCallback callback1 = new MQTTCallback<latestResponse>() {
                 @Override
                 public void onResponse(latestResponse response) {
                     callback.onResponse(response);
@@ -412,8 +412,12 @@ public class oneM2MAPI {
                 @Override
                 public void onFailure(int errorCode, String message) {
                     callback.onFailure(errorCode, message);
+                    Log.e("latest publish", "ri : " + latestRetrieve.getRequestIdentifier() + " id : " + latestRetrieve.hashCode());
                 }
-            });
+            };
+
+            mqttService.publish(latestRetrieve, callback1);
+
         } catch (Exception e) {
             e.printStackTrace();
             callback.onFailure(Definitions.ResponseStatusCode.INTERNAL_SDK_ERROR, e.getMessage());

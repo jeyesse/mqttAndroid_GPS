@@ -128,8 +128,8 @@ public class MainActivity extends Activity {
     private Binder mBinder;
 
     //Thread boolean
-    boolean killTread = true;
-    boolean threadGoOn = true;
+//    boolean killTread = true;
+//    boolean threadGoOn = true;
 
     /**
      * @return 0 ~ 99999
@@ -140,25 +140,25 @@ public class MainActivity extends Activity {
         return id.nextInt(100000);
     }
 
-    Thread timerThread = new Thread(() -> {
-        while (killTread) {
-            try {
-                Thread.sleep(1);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.e("timerThread", "killTread err : " + e.toString());
-            }
-            if (threadGoOn) {
-                try {
-                    Thread.sleep(1000);
-                } catch (Exception e) {
-                    Log.e("timerThread", "threadGoOn err : " + e.toString());
-                }
-                getLatestInstance();
-                Log.i("thread", "getLatestInstance called");
-            }
-        }
-    });
+//    Thread timerThread = new Thread(() -> {
+//        while (killTread) {
+//            try {
+//                Thread.sleep(1);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                Log.e("timerThread", "killTread err : " + e.toString());
+//            }
+//            if (threadGoOn) {
+//                try {
+//                    Thread.sleep(1500);
+//                } catch (Exception e) {
+//                    Log.e("timerThread", "threadGoOn err : " + e.toString());
+//                }
+//                getLatestInstance();
+//                Log.i("thread", "getLatestInstance called");
+//            }
+//        }
+//    });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,7 +166,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         mClientID = Configuration.ACCOUNT_ID + "_" + getRandomNumber();
-        //mClientID = Configuration.ONEM2M_NODEID;
+//        mClientID = Configuration.ONEM2M_NODEID;
         MQTTClient.Builder builder = new MQTTClient.Builder(MainActivity.this)
                 .baseUrl(Configuration.MQTT_SECURE_HOST)
                 .clientId(mClientID)
@@ -178,7 +178,7 @@ public class MainActivity extends Activity {
         TextView textView = findViewById(R.id.status);
         textView.setVisibility(View.INVISIBLE);
 
-        timerThread.start();
+//        timerThread.start();
     }
 
     public void onClick(View view) {
@@ -202,6 +202,7 @@ public class MainActivity extends Activity {
                 }
                 break;
             case R.id.location:
+                getLatestInstance();
                 Intent intent = new Intent(this, MapsActivity.class);
                 startActivity(intent);
                 break;
@@ -273,7 +274,7 @@ public class MainActivity extends Activity {
                             @Override
                             public void onDisconnected() {
                                 setStatus(DISCONNECTED);
-                                threadGoOn = false;
+//                                threadGoOn = false;
                                 showToast("disconnected!", Toast.LENGTH_SHORT);
                             }
 
@@ -286,7 +287,7 @@ public class MainActivity extends Activity {
                             public void onSubscribed() {
                                 setStatus(SUBSCRIBED);
                                 showToast("subscribed!", Toast.LENGTH_SHORT);
-                                getLatestInstance();
+//                                getLatestInstance();
                             }
 
                             @Override
@@ -299,7 +300,7 @@ public class MainActivity extends Activity {
                             public void onConnected() {
                                 showToast("connected!", Toast.LENGTH_SHORT);
                                 registerDevice();
-                                threadGoOn = true;
+//                                threadGoOn = true;
                             }
 
                             @Override
@@ -1732,51 +1733,61 @@ public class MainActivity extends Activity {
         try {
             final List<DeviceInfo> deviceList = new DeviceListTask().execute().get();
             for (final DeviceInfo info : deviceList) {
-                oneM2MAPI.getInstance().tpLatest(mqttService, info.deviceId, Configuration.CONTAINER_NAME_LONGITUDE
-                        , UKEY, new MQTTCallback<latestResponse>() {
-                            @Override
-                            public void onResponse(latestResponse response) {
-                                Log.i("get latest longitude", response.toString());
-                                setNode(response.ri, response);
-                            }
+                oneM2MAPI oneM2MInstance = oneM2MAPI.getInstance();
+                MQTTCallback<latestResponse> callbackLongitude = new MQTTCallback<latestResponse>() {
+                    @Override
+                    public void onResponse(latestResponse response) {
+                        Log.i("get latest longitude", response.toString());
+                        setNode(response.ri, response);
+                    }
 
-                            @Override
-                            public void onFailure(int errorCode, String message) {
-                                Log.e("get latest long err", errorCode + " : " + message);
-//                                appendLog("get Latest long err" + errorCode + " : " + message);
+                    @Override
+                    public void onFailure(int errorCode, String message) {
+                        Log.e("get latest longitude", "err" + errorCode + " : "+ info.deviceId + " : " + message);
+                        Log.e("get latest longitude", "id : " + this.hashCode());
+                        oneM2MInstance.tpLatest(mqttService, info.deviceId, Configuration.CONTAINER_NAME_LONGITUDE
+                                , UKEY, this);
+                    }
+                };
+                oneM2MInstance.tpLatest(mqttService, info.deviceId, Configuration.CONTAINER_NAME_LONGITUDE
+                        , UKEY, callbackLongitude);
 
-                            }
-                        });
-                oneM2MAPI.getInstance().tpLatest(mqttService, info.deviceId, Configuration.CONTAINER_NAME_LATITUDE
-                        , UKEY, new MQTTCallback<latestResponse>() {
-                            @Override
-                            public void onResponse(latestResponse response) {
-                                Log.i("get latest latitude", response.toString());
-                                setNode(response.ri, response);
-                            }
+                MQTTCallback<latestResponse> callbackLatitude = new MQTTCallback<latestResponse>() {
+                    @Override
+                    public void onResponse(latestResponse response) {
+                        Log.i("get latest latitude", response.toString());
+                        setNode(response.ri, response);
+                    }
 
-                            @Override
-                            public void onFailure(int errorCode, String message) {
-                                Log.e("get latest latitude err", errorCode + " : " + message);
-//                                appendLog("get Latest lat err" + errorCode + " : " + message);
+                    @Override
+                    public void onFailure(int errorCode, String message) {
+                        Log.e("get latest latitude", "err" + errorCode + " : " + info.deviceId + " : " + message);
+                        Log.e("get latest latitude", "id : " + this.hashCode());
+                        oneM2MInstance.tpLatest(mqttService, info.deviceId, Configuration.CONTAINER_NAME_LATITUDE
+                                , UKEY, this);
+                    }
+                };
+                oneM2MInstance.tpLatest(mqttService, info.deviceId, Configuration.CONTAINER_NAME_LATITUDE
+                        , UKEY, callbackLatitude);
 
-                            }
-                        });
-                oneM2MAPI.getInstance().tpLatest(mqttService, info.deviceId, Configuration.CONTAINER_NAME_SMOKE
-                        , UKEY, new MQTTCallback<latestResponse>() {
-                            @Override
-                            public void onResponse(latestResponse response) {
-                                Log.i("get latest smoke", response.toString());
-                                setNode(response.ri, response);
-                            }
 
-                            @Override
-                            public void onFailure(int errorCode, String message) {
-                                Log.e("get latest Smoke err", errorCode + " : " + message);
-//                                appendLog("get Latest Smoke err" + errorCode + " : " + message);
+                MQTTCallback<latestResponse> callbackSmoke = new MQTTCallback<latestResponse>() {
+                    @Override
+                    public void onResponse(latestResponse response) {
+                        Log.i("get latest smoke", response.toString());
+                        setNode(response.ri, response);
+                    }
 
-                            }
-                        });
+                    @Override
+                    public void onFailure(int errorCode, String message) {
+                        Log.e("get latest Smoke", "err" + errorCode + " : " + info.deviceId + " : " + message);
+                        Log.e("get latest Smoke", "id : " + this.hashCode());
+                        oneM2MInstance.tpLatest(mqttService, info.deviceId, Configuration.CONTAINER_NAME_SMOKE
+                                , UKEY, this);
+                    }
+                };
+                oneM2MInstance.tpLatest(mqttService, info.deviceId, Configuration.CONTAINER_NAME_SMOKE
+                        , UKEY, callbackSmoke);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -1806,9 +1817,9 @@ public class MainActivity extends Activity {
         if (Integer.parseInt(response.rsc) >= 4000) return;
         else {
             try {
-            list.add(response.getCon());
-            list.add(response.getLt());
-            }catch (Exception e) {
+                list.add(response.getCon());
+                list.add(response.getLt());
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
